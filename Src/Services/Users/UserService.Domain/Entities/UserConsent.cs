@@ -40,11 +40,11 @@ public class UserConsent : Entity
 
         // Validação do UserId
         if (UserId == Guid.Empty)
-            validationHandler.AddError("UserId", "O ID do usuário é obrigatório");
+            validationHandler.Add("UserId", "O ID do usuário é obrigatório");
 
         // Validação da versão dos termos
         if (!string.IsNullOrWhiteSpace(TermsVersion) && TermsVersion.Length > 30)
-            validationHandler.AddError("TermsVersion", "A versão dos termos deve ter no máximo 30 caracteres");
+            validationHandler.Add("TermsVersion", "A versão dos termos deve ter no máximo 30 caracteres");
 
         return validationHandler;
     }

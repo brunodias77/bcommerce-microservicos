@@ -13,6 +13,11 @@
 
     <ItemGroup>
       <Folder Include="Dtos\Keycloak\" />
+      <Folder Include="Queries\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.csproj" />
     </ItemGroup>
 
 </Project>

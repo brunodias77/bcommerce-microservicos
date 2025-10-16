@@ -157,27 +157,27 @@ public class User : AggregateRoot
 
         // Validação do nome
         if (string.IsNullOrWhiteSpace(FirstName))
-            validationHandler.AddError("FirstName", "O nome é obrigatório");
+            validationHandler.Add("FirstName", "O nome é obrigatório");
         else if (FirstName.Length > 100)
-            validationHandler.AddError("FirstName", "O nome deve ter no máximo 100 caracteres");
+            validationHandler.Add("FirstName", "O nome deve ter no máximo 100 caracteres");
 
         // Validação do sobrenome
         if (string.IsNullOrWhiteSpace(LastName))
-            validationHandler.AddError("LastName", "O sobrenome é obrigatório");
+            validationHandler.Add("LastName", "O sobrenome é obrigatório");
         else if (LastName.Length > 155)
-            validationHandler.AddError("LastName", "O sobrenome deve ter no máximo 155 caracteres");
+            validationHandler.Add("LastName", "O sobrenome deve ter no máximo 155 caracteres");
 
         // Validação do email
         if (Email == null)
-            validationHandler.AddError("Email", "O email é obrigatório");
+            validationHandler.Add("Email", "O email é obrigatório");
 
         // Validação da data de nascimento
         if (DateOfBirth.HasValue && DateOfBirth.Value > DateTime.Today)
-            validationHandler.AddError("DateOfBirth", "A data de nascimento não pode ser no futuro");
+            validationHandler.Add("DateOfBirth", "A data de nascimento não pode ser no futuro");
 
         // Validação de tentativas de login
         if (FailedLoginAttempts < 0)
-            validationHandler.AddError("FailedLoginAttempts", "O número de tentativas de login falhadas não pode ser negativo");
+            validationHandler.Add("FailedLoginAttempts", "O número de tentativas de login falhadas não pode ser negativo");
 
         return validationHandler;
     }

@@ -54,29 +54,29 @@ public class SavedCard : Entity
 
         // Validação do UserId
         if (UserId == Guid.Empty)
-            validationHandler.AddError("UserId", "O ID do usuário é obrigatório");
+            validationHandler.Add("UserId", "O ID do usuário é obrigatório");
 
         // Validação dos últimos 4 dígitos
         if (string.IsNullOrWhiteSpace(LastFourDigits))
-            validationHandler.AddError("LastFourDigits", "Os últimos 4 dígitos são obrigatórios");
+            validationHandler.Add("LastFourDigits", "Os últimos 4 dígitos são obrigatórios");
         else if (LastFourDigits.Length != 4)
-            validationHandler.AddError("LastFourDigits", "Devem ser exatamente 4 dígitos");
+            validationHandler.Add("LastFourDigits", "Devem ser exatamente 4 dígitos");
         else if (!LastFourDigits.All(char.IsDigit))
-            validationHandler.AddError("LastFourDigits", "Devem conter apenas números");
+            validationHandler.Add("LastFourDigits", "Devem conter apenas números");
 
         // Validação do token do gateway
         if (string.IsNullOrWhiteSpace(GatewayToken))
-            validationHandler.AddError("GatewayToken", "O token do gateway é obrigatório");
+            validationHandler.Add("GatewayToken", "O token do gateway é obrigatório");
         else if (GatewayToken.Length > 255)
-            validationHandler.AddError("GatewayToken", "O token do gateway deve ter no máximo 255 caracteres");
+            validationHandler.Add("GatewayToken", "O token do gateway deve ter no máximo 255 caracteres");
 
         // Validação da data de expiração
         if (ExpiryDate <= DateTime.Today)
-            validationHandler.AddError("ExpiryDate", "A data de expiração deve ser no futuro");
+            validationHandler.Add("ExpiryDate", "A data de expiração deve ser no futuro");
 
         // Validação do apelido
         if (!string.IsNullOrWhiteSpace(Nickname) && Nickname.Length > 50)
-            validationHandler.AddError("Nickname", "O apelido deve ter no máximo 50 caracteres");
+            validationHandler.Add("Nickname", "O apelido deve ter no máximo 50 caracteres");
 
         return validationHandler;
     }

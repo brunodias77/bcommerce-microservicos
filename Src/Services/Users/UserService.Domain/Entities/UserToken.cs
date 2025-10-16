@@ -45,21 +45,21 @@ public class UserToken : Entity
 
         // Validação do token value
         if (string.IsNullOrWhiteSpace(TokenValue))
-            validationHandler.AddError("TokenValue", "O valor do token é obrigatório");
+            validationHandler.Add("TokenValue", "O valor do token é obrigatório");
         else if (TokenValue.Length > 2048)
-            validationHandler.AddError("TokenValue", "O valor do token deve ter no máximo 2048 caracteres");
+            validationHandler.Add("TokenValue", "O valor do token deve ter no máximo 2048 caracteres");
 
         // Validação da data de expiração
         if (ExpiresAt <= DateTime.UtcNow)
-            validationHandler.AddError("ExpiresAt", "A data de expiração deve ser no futuro");
+            validationHandler.Add("ExpiresAt", "A data de expiração deve ser no futuro");
 
         // Validação do UserId
         if (UserId == Guid.Empty)
-            validationHandler.AddError("UserId", "O ID do usuário é obrigatório");
+            validationHandler.Add("UserId", "O ID do usuário é obrigatório");
 
         // Validação da data de revogação
         if (RevokedAt.HasValue && RevokedAt.Value > DateTime.UtcNow)
-            validationHandler.AddError("RevokedAt", "A data de revogação não pode ser no futuro");
+            validationHandler.Add("RevokedAt", "A data de revogação não pode ser no futuro");
 
         return validationHandler;
     }
