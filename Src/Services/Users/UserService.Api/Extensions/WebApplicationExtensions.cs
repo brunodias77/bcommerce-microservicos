@@ -20,21 +20,6 @@ public static class WebApplicationExtensions
     /// <returns>A mesma instância da aplicação para permitir method chaining</returns>
     public static WebApplication ConfigureDevelopmentPipeline(this WebApplication app)
     {
-        // Habilita o middleware do Swagger para geração da documentação OpenAPI
-        // Permite que desenvolvedores visualizem e testem os endpoints da API
-        app.UseSwagger();
-        
-        // Configura a interface web do Swagger (Swagger UI)
-        app.UseSwaggerUI(c =>
-        {
-            // Define o endpoint onde o arquivo JSON da documentação está disponível
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", "API de Gerenciamento de Usuários B-Commerce v1");
-            
-            // Define que o Swagger UI será servido na raiz da aplicação (/)
-            // Isso facilita o acesso durante o desenvolvimento
-            c.RoutePrefix = string.Empty;
-        });
-        
         // Habilita páginas de exceção detalhadas para debugging
         // Mostra stack traces completos e informações técnicas sobre erros
         // IMPORTANTE: Nunca deve ser usado em produção por expor informações sensíveis
@@ -112,6 +97,13 @@ public static class WebApplicationExtensions
     /// <returns>A mesma instância da aplicação para permitir method chaining</returns>
     public static WebApplication ConfigureMiddlewarePipeline(this WebApplication app)
     {
+        // 0. Swagger (apenas em desenvolvimento) - deve vir antes de HTTPS redirect
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
+        
         // 1. HTTPS Redirection: Redireciona todas as requisições HTTP para HTTPS
         // Deve vir ANTES de outros middlewares para garantir comunicação segura
         app.UseHttpsRedirection();
@@ -129,7 +121,11 @@ public static class WebApplicationExtensions
         // Deve vir DEPOIS da autenticação e ANTES do mapeamento de controllers
         app.UseAuthorization();
         
-        // 5. Controller Mapping: Mapeia as rotas para os controllers
+        // 5. Health Checks: Mapeia os endpoints de health check
+        // Permite monitoramento da saúde da aplicação por load balancers e orquestradores
+        app.MapHealthChecks("/health");
+        
+        // 6. Controller Mapping: Mapeia as rotas para os controllers
         // Deve ser o ÚLTIMO middleware do pipeline para processar as requisições
         app.MapControllers();
         
