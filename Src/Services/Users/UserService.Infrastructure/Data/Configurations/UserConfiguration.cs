@@ -131,7 +131,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .OnDelete(DeleteBehavior.Cascade);
 
         // Índices
-        builder.HasIndex(u => u.Email.Value)
+        builder.HasIndex(u => u.Email)
             .IsUnique()
             .HasDatabaseName("IX_users_email");
 
@@ -140,7 +140,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasDatabaseName("IX_users_keycloak_id")
             .HasFilter("keycloak_id IS NOT NULL");
 
-        builder.HasIndex(u => u.Cpf!.Value)
+        builder.HasIndex(u => u.Cpf)
             .IsUnique()
             .HasDatabaseName("IX_users_cpf")
             .HasFilter("cpf IS NOT NULL");
