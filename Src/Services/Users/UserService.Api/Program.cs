@@ -1,5 +1,8 @@
 using UserService.Api.Configurations;
 using UserService.Api.Middlewares;
+using FluentMigrator.Runner;
+using UserService.Infrastructure;
+using UserService.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +34,22 @@ static void ConfigureServices(IServiceCollection services, IConfiguration config
     services.AddControllers();
     services.AddInfrastructure(configuration);
     services.AddApplication(configuration);
+    
+    // Configuração do FluentMigrator
+    ConfigureFluentMigrator(services, configuration);
+}
+
+static void ConfigureFluentMigrator(IServiceCollection services, IConfiguration configuration)
+{
+    var connectionString = configuration.GetConnectionString("DefaultConnection")
+                          ?? throw new InvalidOperationException("Connection string 'DefaultConnection' não encontrada");
+
+    services.AddFluentMigratorCore()
+        .ConfigureRunner(rb => rb
+            .AddPostgres()
+            .WithGlobalConnectionString(connectionString)
+            .ScanIn(typeof(UserServiceDbContext).Assembly).For.Migrations())
+        .AddLogging(lb => lb.AddFluentMigratorConsole());
 }
 
 static async Task ConfigureMiddlewarePipelineAsync(WebApplication app)
@@ -79,8 +98,11 @@ static async Task ConfigureDevelopmentEnvironmentAsync(WebApplication app)
 
     var logger = app.Services.GetRequiredService<ILogger<Program>>();
     logger.LogInformation("========================================");
-    logger.LogInformation("MODO DE DESENVOLVIMENTO - Executando Testes de Integração");
+    logger.LogInformation("MODO DE DESENVOLVIMENTO - Executando Migrations e Testes de Integração");
     logger.LogInformation("========================================");
+
+    // Executar migrations do FluentMigrator
+    await RunFluentMigratorMigrationsAsync(app, logger);
 
     await RunIntegrationTestsAsync(app, logger);
 }
@@ -105,6 +127,36 @@ static void ConfigureSecurityHeaders(WebApplication app)
         
         await next();
     });
+}
+
+static Task RunFluentMigratorMigrationsAsync(WebApplication app, ILogger logger)
+{
+    try
+    {
+        using var scope = app.Services.CreateScope();
+        var runner = scope.ServiceProvider.GetRequiredService<IMigrationRunner>();
+
+        logger.LogInformation("🔄 Iniciando execução das migrations do FluentMigrator...");
+
+        // Verificar se há migrations pendentes
+        if (runner.HasMigrationsToApplyUp())
+        {
+            logger.LogInformation("📋 Migrations pendentes encontradas. Executando...");
+            runner.MigrateUp();
+            logger.LogInformation("✅ Migrations executadas com sucesso!");
+        }
+        else
+        {
+            logger.LogInformation("✅ Todas as migrations já estão aplicadas. Banco de dados atualizado!");
+        }
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "❌ Erro ao executar migrations do FluentMigrator: {Message}", ex.Message);
+        throw; // Re-throw para interromper a aplicação em caso de erro crítico
+    }
+    
+    return Task.CompletedTask;
 }
 
 static async Task RunIntegrationTestsAsync(WebApplication app, ILogger logger)

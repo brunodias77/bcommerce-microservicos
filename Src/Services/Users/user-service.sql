@@ -11,6 +11,7 @@ CREATE TYPE user_role_enum AS ENUM ('customer', 'admin');
 CREATE TYPE consent_type_enum AS ENUM ('marketing_email', 'newsletter_subscription', 'terms_of_service', 'privacy_policy', 'cookies_essential', 'cookies_analytics', 'cookies_marketing');
 CREATE TYPE card_brand_enum AS ENUM ('visa', 'mastercard', 'amex', 'elo', 'hipercard', 'diners_club', 'discover', 'jcb', 'aura', 'other');
 CREATE TYPE address_type_enum AS ENUM ('shipping', 'billing');
+CREATE TYPE user_token_type_enum AS ENUM ('refresh', 'email_verification', 'password_reset');
 
 -- Função de timestamp
 CREATE OR REPLACE FUNCTION trigger_set_timestamp()
@@ -131,7 +132,7 @@ CREATE TRIGGER set_timestamp_user_saved_cards BEFORE UPDATE ON user_saved_cards 
 CREATE TABLE user_tokens (
     token_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
-    token_type VARCHAR(50) NOT NULL, -- 'refresh', 'email_verification', 'password_reset'
+    token_type user_token_type_enum NOT NULL,
     token_value VARCHAR(2048) NOT NULL UNIQUE,
     expires_at TIMESTAMPTZ NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
