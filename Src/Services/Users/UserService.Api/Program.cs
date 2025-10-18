@@ -1,114 +1,186 @@
-// ============================================================================
-// B-Commerce User Management API - Program.cs
-// ============================================================================
-// Este arquivo é o ponto de entrada principal da aplicação ASP.NET Core.
-// Utiliza o padrão Minimal API do .NET 6+ que simplifica a configuração
-// e inicialização da aplicação, eliminando a necessidade das classes
-// Startup.cs e Program.cs separadas do .NET Framework.
-// ============================================================================
-
-using Microsoft.AspNetCore.Diagnostics;
 using UserService.Api.Configurations;
 using UserService.Api.Middlewares;
-using UserService.Application.Contracts.Keycloak;
-using UserService.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuração de serviços
-builder.Services.AddControllers();
-builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddApplication(builder.Configuration);
+// ===================================================================
+// SERVICE CONFIGURATION
+// ===================================================================
+ConfigureServices(builder.Services, builder.Configuration);
 
 var app = builder.Build();
 
-// Middleware de tratamento de exceções
-app.UseMiddleware<ExceptionHandlingMiddleware>();
+// ===================================================================
+// MIDDLEWARE PIPELINE
+// ===================================================================
+await ConfigureMiddlewarePipelineAsync(app);
 
-// Configuração do pipeline por ambiente
-if (app.Environment.IsDevelopment())
+// ===================================================================
+// APPLICATION STARTUP
+// ===================================================================
+await RunApplicationAsync(app);
+
+return;
+
+// ===================================================================
+// HELPER METHODS
+// ===================================================================
+
+static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
 {
-    // Configura o pipeline para ambiente de desenvolvimento
-    app.UseDeveloperExceptionPage();
-    
-    // Executa testes de integração básicos durante a inicialização
-    var logger = app.Services.GetRequiredService<ILogger<Program>>();
-    
-    // Teste de conexão com banco de dados
-    try
-    {
-        using var scope = app.Services.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<UserServiceDbContext>();
-        await dbContext.Database.CanConnectAsync();
-        logger.LogInformation("✅ Teste de conexão Entity Framework: SUCESSO");
-    }
-    catch (Exception ex)
-    {
-        logger.LogError(ex, "❌ Teste de conexão Entity Framework: FALHOU");
-    }
-    
-    // Teste de injeção de dependência
-    try
-    {
-        using var scope = app.Services.CreateScope();
-        var keycloakService = scope.ServiceProvider.GetRequiredService<IKeycloakService>();
-        logger.LogInformation("✅ Teste de Injeção de Dependência: SUCESSO");
-    }
-    catch (Exception ex)
-    {
-        logger.LogError(ex, "❌ Teste de Injeção de Dependência: FALHOU");
-    }
+    services.AddControllers();
+    services.AddInfrastructure(configuration);
+    services.AddApplication(configuration);
 }
-else
+
+static async Task ConfigureMiddlewarePipelineAsync(WebApplication app)
 {
-    // Configura o pipeline para ambiente de produção
+    // Exception Handling
+    app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+    // Environment-specific configuration
+    if (app.Environment.IsDevelopment())
+    {
+        await ConfigureDevelopmentEnvironmentAsync(app);
+    }
+    else
+    {
+        ConfigureProductionEnvironment(app);
+    }
+
+    // Security Headers
+    ConfigureSecurityHeaders(app);
+
+    // API Documentation (Development only)
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI(options =>
+        {
+            options.SwaggerEndpoint("/swagger/v1/swagger.json", "API de Usuários v1");
+            options.RoutePrefix = "swagger";
+        });
+    }
+
+    // Core Middleware Pipeline
+    app.UseHttpsRedirection();
+    app.UseCors("DefaultPolicy");
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    // Endpoints
+    app.MapHealthChecks("/health");
+    app.MapControllers();
+}
+
+static async Task ConfigureDevelopmentEnvironmentAsync(WebApplication app)
+{
+    app.UseDeveloperExceptionPage();
+
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogInformation("========================================");
+    logger.LogInformation("MODO DE DESENVOLVIMENTO - Executando Testes de Integração");
+    logger.LogInformation("========================================");
+
+    await RunIntegrationTestsAsync(app, logger);
+}
+
+static void ConfigureProductionEnvironment(WebApplication app)
+{
     app.UseExceptionHandler("/error");
     app.UseHsts();
 }
 
-// Configura cabeçalhos de segurança HTTP
-app.Use(async (context, next) =>
+static void ConfigureSecurityHeaders(WebApplication app)
 {
-    var headers = context.Response.Headers;
-    headers["X-Content-Type-Options"] = "nosniff";
-    headers["X-Frame-Options"] = "DENY";
-    headers["X-XSS-Protection"] = "1; mode=block";
-    headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
-    headers["Content-Security-Policy"] = 
-        "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'";
-    
-    await next();
-});
-
-// Pipeline principal de middleware
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.Use(async (context, next) =>
+    {
+        var headers = context.Response.Headers;
+        headers["X-Content-Type-Options"] = "nosniff";
+        headers["X-Frame-Options"] = "DENY";
+        headers["X-XSS-Protection"] = "1; mode=block";
+        headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+        headers["Content-Security-Policy"] = 
+            "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'";
+        
+        await next();
+    });
 }
 
-app.UseHttpsRedirection();
-app.UseCors();
-app.UseAuthentication();
-app.UseAuthorization();
-app.MapHealthChecks("/health");
-app.MapControllers();
-
-// Configura logging de inicialização da aplicação
-var startupLogger = app.Services.GetRequiredService<ILogger<Program>>();
-startupLogger.LogInformation("API de Gerenciamento de Usuários B-Commerce iniciando...");
-startupLogger.LogInformation("Ambiente: {Environment}", app.Environment.EnvironmentName);
-startupLogger.LogInformation("URL do Keycloak: {KeycloakUrl}", builder.Configuration["Keycloak:AuthServerUrl"]);
-startupLogger.LogInformation("Realm do Keycloak: {Realm}", builder.Configuration["Keycloak:Realm"]);
-
-// Inicialização da aplicação
-try
+static async Task RunIntegrationTestsAsync(WebApplication app, ILogger logger)
 {
-    app.Run();
+    using var scope = app.Services.CreateScope();
+    var services = scope.ServiceProvider;
+
+    // Database Connection Test
+    await TestDatabaseConnectionAsync(services, logger);
+
+    // Dependency Injection Test
+    TestDependencyInjection(services, logger);
+
+    logger.LogInformation("========================================");
 }
-catch (Exception ex)
+
+static async Task TestDatabaseConnectionAsync(IServiceProvider services, ILogger logger)
+{
+    try
+    {
+        var dbContext = services.GetRequiredService<UserService.Infrastructure.Data.UserServiceDbContext>();
+        var canConnect = await dbContext.Database.CanConnectAsync();
+
+        if (canConnect)
+        {
+            logger.LogInformation("✅ Teste de Conexão com o Banco de Dados: SUCESSO");
+        }
+        else
+        {
+            logger.LogWarning("⚠️  Teste de Conexão com o Banco de Dados: Conectado, mas sem resposta de consulta");
+        }
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "❌ Teste de Conexão com o Banco de Dados: FALHOU - {Message}", ex.Message);    }
+}
+
+static void TestDependencyInjection(IServiceProvider services, ILogger logger)
+{
+    try
+    {
+        var keycloakService = services.GetRequiredService<UserService.Application.Contracts.Keycloak.IKeycloakService>();
+        logger.LogInformation("✅ Teste de Injeção de Dependência: SUCESSO");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "❌ Teste de Injeção de Dependência: FALHOU - {Message}", ex.Message);
+    }
+}
+
+static async Task RunApplicationAsync(WebApplication app)
+{
+    LogStartupInformation(app);
+
+    try
+    {
+        await app.RunAsync();
+    }
+    catch (Exception ex)
+    {
+        var logger = app.Services.GetRequiredService<ILogger<Program>>();
+        logger.LogCritical(ex, "Falha crítica durante a inicialização da aplicação");
+        throw;
+    }
+}
+
+static void LogStartupInformation(WebApplication app)
 {
     var logger = app.Services.GetRequiredService<ILogger<Program>>();
-    logger.LogCritical(ex, "Falha crítica na inicialização da aplicação B-Commerce User API");
-    throw;
+    var configuration = app.Configuration;
+
+    logger.LogInformation("========================================");
+    logger.LogInformation("B-Commerce - API de Gerenciamento de Usuários");
+    logger.LogInformation("========================================");
+    logger.LogInformation("Ambiente: {Environment}", app.Environment.EnvironmentName);
+    logger.LogInformation("URL do Keycloak: {KeycloakUrl}", configuration["Keycloak:Url"]);
+    logger.LogInformation("Realm do Keycloak: {Realm}", configuration["Keycloak:Realm"]);
+    logger.LogInformation("========================================");
 }
