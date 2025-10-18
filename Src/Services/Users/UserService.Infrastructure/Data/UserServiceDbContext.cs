@@ -129,15 +129,6 @@ public class UserServiceDbContext : DbContext
             optionsBuilder.UseNpgsql();
         }
 
-        // Configurações adicionais do PostgreSQL
-        optionsBuilder.UseNpgsql(options =>
-        {
-            options.EnableRetryOnFailure(
-                maxRetryCount: 3,
-                maxRetryDelay: TimeSpan.FromSeconds(30),
-                errorCodesToAdd: null);
-        });
-
         // Configurações de desenvolvimento
         if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
         {

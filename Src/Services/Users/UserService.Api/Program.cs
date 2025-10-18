@@ -4,6 +4,9 @@ using FluentMigrator.Runner;
 using UserService.Infrastructure;
 using UserService.Infrastructure.Data;
 
+
+Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
+
 var builder = WebApplication.CreateBuilder(args);
 
 // ===================================================================

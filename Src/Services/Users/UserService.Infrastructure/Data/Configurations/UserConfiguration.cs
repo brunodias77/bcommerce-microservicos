@@ -104,6 +104,13 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.UpdatedAt)
             .HasColumnName("updated_at");
 
+        builder.Property(u => u.DeletedAt)
+            .HasColumnName("deleted_at");
+
+        builder.Property(u => u.Version)
+            .HasColumnName("version")
+            .IsRequired();
+
         // Relacionamentos
         builder.HasMany(u => u.Addresses)
             .WithOne(a => a.User)

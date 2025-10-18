@@ -54,10 +54,11 @@ public static class InfraDependencyInjection
         options.UseNpgsql(connectionString, npgsqlOptions =>
         {
             npgsqlOptions.MigrationsAssembly(typeof(UserServiceDbContext).Assembly.FullName);
-            npgsqlOptions.EnableRetryOnFailure(
-                maxRetryCount: 3,
-                maxRetryDelay: TimeSpan.FromSeconds(30),
-                errorCodesToAdd: null);
+            // Removido EnableRetryOnFailure para permitir transações manuais
+            // npgsqlOptions.EnableRetryOnFailure(
+            //     maxRetryCount: 3,
+            //     maxRetryDelay: TimeSpan.FromSeconds(30),
+            //     errorCodesToAdd: null);
         });
     }
 

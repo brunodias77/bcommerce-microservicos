@@ -29,7 +29,8 @@ public class CreateUsersTable : Migration
             .WithColumn("account_locked_until").AsDateTime().Nullable()
             .WithColumn("created_at").AsDateTime().NotNullable().WithDefault(SystemMethods.CurrentDateTime)
             .WithColumn("updated_at").AsDateTime().Nullable()
-            .WithColumn("deleted_at").AsDateTime().Nullable();
+            .WithColumn("deleted_at").AsDateTime().Nullable()
+            .WithColumn("version").AsInt32().NotNullable().WithDefaultValue(1);
 
         // Criar índices únicos com filtros condicionais usando SQL direto
         // Índice único para email apenas para registros ativos (não deletados)
