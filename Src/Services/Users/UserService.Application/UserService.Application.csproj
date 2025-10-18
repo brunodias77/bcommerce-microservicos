@@ -12,12 +12,13 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Dtos\Keycloak\" />
+      <Folder Include="Dtos\" />
       <Folder Include="Queries\" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.csproj" />
+      <ProjectReference Include="..\UserService.Infrastructure\UserService.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>

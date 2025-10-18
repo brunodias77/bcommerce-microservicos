@@ -1,5 +1,109 @@
-@UserService.Api_HostAddress = http://localhost:5152
+@UserService.Api_HostAddress = http://localhost:5000
 
+### Test AuthController
+GET {{UserService.Api_HostAddress}}/api/auth/test
+Accept: application/json
+
+###
+
+### Register User - Valid Data
+POST {{UserService.Api_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "João",
+  "lastName": "Silva",
+  "email": "joao.silva@example.com",
+  "password": "MinhaSenh@123",
+  "newsletterOptIn": true
+}
+
+###
+
+### Register User - Another Valid User
+POST {{UserService.Api_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "Maria",
+  "lastName": "Santos",
+  "email": "maria.santos@example.com",
+  "password": "OutraSenh@456",
+  "newsletterOptIn": false
+}
+
+###
+
+### Register User - Invalid Email
+POST {{UserService.Api_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "Pedro",
+  "lastName": "Costa",
+  "email": "email-invalido",
+  "password": "MinhaSenh@123",
+  "newsletterOptIn": true
+}
+
+###
+
+### Register User - Weak Password
+POST {{UserService.Api_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "Ana",
+  "lastName": "Oliveira",
+  "email": "ana.oliveira@example.com",
+  "password": "123",
+  "newsletterOptIn": true
+}
+
+###
+
+### Register User - Missing Required Fields
+POST {{UserService.Api_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "",
+  "lastName": "Ferreira",
+  "email": "carlos.ferreira@example.com",
+  "password": "MinhaSenh@123",
+  "newsletterOptIn": true
+}
+
+###
+
+### Register User - Duplicate Email (run after first valid registration)
+POST {{UserService.Api_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "João",
+  "lastName": "Duplicate",
+  "email": "joao.silva@example.com",
+  "password": "MinhaSenh@123",
+  "newsletterOptIn": true
+}
+
+###
+
+### Register User - Malformed JSON
+POST {{UserService.Api_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "Teste"
+  "lastName": "Malformed",
+  "email": "teste@example.com",
+  "password": "MinhaSenh@123",
+  "newsletterOptIn": true
+
+###
+
+### Weather Forecast (Original Test)
 GET {{UserService.Api_HostAddress}}/weatherforecast/
 Accept: application/json
 

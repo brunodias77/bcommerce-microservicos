@@ -165,6 +165,10 @@ CREATE TRIGGER set_timestamp_user_consents BEFORE UPDATE ON user_consents FOR EA
 CREATE TABLE revoked_jwt_tokens (
     jti UUID PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
-    expires_at TIMESTAMPTZ NOT NULL
+    expires_at TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ,
+    version INTEGER NOT NULL DEFAULT 1
 );
 CREATE INDEX idx_revoked_jwt_tokens_expires_at ON revoked_jwt_tokens (expires_at);

@@ -39,6 +39,11 @@ public class UserToken : Entity
     [ForeignKey("UserId")]
     public virtual User User { get; set; }
 
+    public void SoftDelete()
+    {
+        DeletedAt = DateTime.UtcNow;
+    }
+
     public override ValidationHandler Validate()
     {
         var validationHandler = new ValidationHandler();

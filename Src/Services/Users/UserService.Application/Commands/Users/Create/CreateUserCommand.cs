@@ -25,5 +25,9 @@ public record CreateUserCommand(
             "A senha deve ter no mínimo 8 caracteres e incluir pelo menos uma letra maiúscula, uma minúscula, um número e um caractere especial.")]
     string Password,
 
+    string? ConfirmPassword,
+    string? PhoneNumber,
+    DateTime? DateOfBirth,
+
     [Required] bool NewsletterOptIn
 ) : IRequest<ApiResponse<Guid>>;

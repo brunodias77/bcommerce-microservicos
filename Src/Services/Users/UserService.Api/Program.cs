@@ -134,16 +134,66 @@ static Task RunFluentMigratorMigrationsAsync(WebApplication app, ILogger logger)
     try
     {
         using var scope = app.Services.CreateScope();
-        var runner = scope.ServiceProvider.GetRequiredService<IMigrationRunner>();
-
+        
         logger.LogInformation("🔄 Iniciando execução das migrations do FluentMigrator...");
+        
+        // Verificar se o IMigrationRunner está registrado
+        var runner = scope.ServiceProvider.GetService<IMigrationRunner>();
+        if (runner == null)
+        {
+            logger.LogError("❌ IMigrationRunner não está registrado no container de DI!");
+            throw new InvalidOperationException("IMigrationRunner não foi registrado corretamente");
+        }
+        
+        logger.LogInformation("✅ IMigrationRunner encontrado no container de DI");
+        
+        // Verificar connection string
+        var configuration = app.Configuration;
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
+        logger.LogInformation("🔗 Connection String: {ConnectionString}", connectionString);
+        
+        // Verificar assembly das migrations
+        var assembly = typeof(UserServiceDbContext).Assembly;
+        logger.LogInformation("📦 Assembly das migrations: {AssemblyName}", assembly.FullName);
+        
+        // Listar migrations encontradas
+        var migrationInfos = runner.MigrationLoader.LoadMigrations();
+        logger.LogInformation("📋 Total de migrations encontradas: {Count}", migrationInfos.Count());
+        
+        foreach (var migration in migrationInfos)
+        {
+            logger.LogInformation("  - Migration: {Version} - {Description}", 
+                migration.Key, migration.Value.Migration.GetType().Name);
+        }
 
         // Verificar se há migrations pendentes
         if (runner.HasMigrationsToApplyUp())
         {
             logger.LogInformation("📋 Migrations pendentes encontradas. Executando...");
-            runner.MigrateUp();
-            logger.LogInformation("✅ Migrations executadas com sucesso!");
+            
+            // Executar migrations uma por vez para identificar qual está falhando
+            var pendingMigrations = runner.MigrationLoader.LoadMigrations()
+                .Where(m => !runner.HasMigrationsToApplyDown(m.Key))
+                .OrderBy(m => m.Key);
+                
+            foreach (var migration in pendingMigrations)
+            {
+                try
+                {
+                    logger.LogInformation("🔄 Executando migration: {Version} - {Description}", 
+                        migration.Key, migration.Value.Migration.GetType().Name);
+                    runner.MigrateUp(migration.Key);
+                    logger.LogInformation("✅ Migration {Version} executada com sucesso!", migration.Key);
+                }
+                catch (Exception migrationEx)
+                {
+                    logger.LogError(migrationEx, "❌ Erro na migration {Version}: {Message}", 
+                        migration.Key, migrationEx.Message);
+                    throw;
+                }
+            }
+            
+            logger.LogInformation("✅ Todas as migrations executadas com sucesso!");
         }
         else
         {
@@ -153,6 +203,7 @@ static Task RunFluentMigratorMigrationsAsync(WebApplication app, ILogger logger)
     catch (Exception ex)
     {
         logger.LogError(ex, "❌ Erro ao executar migrations do FluentMigrator: {Message}", ex.Message);
+        logger.LogError("❌ Stack Trace: {StackTrace}", ex.StackTrace);
         throw; // Re-throw para interromper a aplicação em caso de erro crítico
     }
     
@@ -234,5 +285,8 @@ static void LogStartupInformation(WebApplication app)
     logger.LogInformation("Ambiente: {Environment}", app.Environment.EnvironmentName);
     logger.LogInformation("URL do Keycloak: {KeycloakUrl}", configuration["Keycloak:Url"]);
     logger.LogInformation("Realm do Keycloak: {Realm}", configuration["Keycloak:Realm"]);
+    logger.LogInformation("Admin Username: {AdminUsername}", configuration["Keycloak:AdminUsername"]);
+    logger.LogInformation("KEYCLOAK_URL env: {EnvUrl}", Environment.GetEnvironmentVariable("KEYCLOAK_URL"));
+    logger.LogInformation("KEYCLOAK_REALM env: {EnvRealm}", Environment.GetEnvironmentVariable("KEYCLOAK_REALM"));
     logger.LogInformation("========================================");
 }

@@ -29,13 +29,12 @@ public class RevokedJwtTokenConfiguration : IEntityTypeConfiguration<RevokedJwtT
             .HasColumnName("expires_at")
             .IsRequired();
 
-        // Configuração de herança da Entity
-        builder.Property(rjt => rjt.CreatedAt)
-            .HasColumnName("created_at")
-            .IsRequired();
-
-        builder.Property(rjt => rjt.UpdatedAt)
-            .HasColumnName("updated_at");
+        // Ignorar propriedades da Entity base que não existem na tabela
+        builder.Ignore(rjt => rjt.CreatedAt);
+        builder.Ignore(rjt => rjt.UpdatedAt);
+        builder.Ignore(rjt => rjt.DeletedAt);
+        builder.Ignore(rjt => rjt.Version);
+        builder.Ignore(rjt => rjt.DomainEvents);
 
         // Relacionamentos
         builder.HasOne(rjt => rjt.User)
