@@ -40,11 +40,11 @@ public class PerformanceBehavior<TRequest, TResponse> : IPipelineBehavior<TReque
         if (elapsedMilliseconds > 500)
         {
             var requestName = typeof(TRequest).Name;
-            var userId = _currentUser.UserId?.ToString() ?? "Anonymous";
-            var userName = _currentUser.UserName ?? "Anonymous";
+            var userId = _currentUser.UserId?.ToString() ?? "Anônimo";
+            var userName = _currentUser.UserName ?? "Anônimo";
 
             _logger.LogWarning(
-                "Long Running Request: {Name} ({ElapsedMilliseconds} milliseconds) {@UserId} {@UserName} {@Request}",
+                "Requisição de longa duração: {Name} ({ElapsedMilliseconds} milissegundos) {@UserId} {@UserName} {@Request}",
                 requestName,
                 elapsedMilliseconds,
                 userId,

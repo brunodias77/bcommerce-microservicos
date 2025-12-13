@@ -23,7 +23,7 @@ public class RequestLoggingMiddleware
         var correlationId = GetOrCreateCorrelationId(context);
 
         _logger.LogInformation(
-            "HTTP {Method} {Path} started. CorrelationId: {CorrelationId}",
+            "HTTP {Method} {Path} iniciado. CorrelationId: {CorrelationId}",
             context.Request.Method,
             context.Request.Path,
             correlationId);
@@ -42,7 +42,7 @@ public class RequestLoggingMiddleware
 
             _logger.Log(
                 logLevel,
-                "HTTP {Method} {Path} responded {StatusCode} in {ElapsedMilliseconds}ms. CorrelationId: {CorrelationId}",
+                "HTTP {Method} {Path} respondeu {StatusCode} em {ElapsedMilliseconds}ms. CorrelationId: {CorrelationId}",
                 context.Request.Method,
                 context.Request.Path,
                 context.Response.StatusCode,
@@ -55,7 +55,7 @@ public class RequestLoggingMiddleware
 
             _logger.LogError(
                 ex,
-                "HTTP {Method} {Path} failed in {ElapsedMilliseconds}ms. CorrelationId: {CorrelationId}",
+                "HTTP {Method} {Path} falhou em {ElapsedMilliseconds}ms. CorrelationId: {CorrelationId}",
                 context.Request.Method,
                 context.Request.Path,
                 stopwatch.ElapsedMilliseconds,

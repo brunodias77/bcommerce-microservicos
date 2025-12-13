@@ -22,7 +22,7 @@ public class ValidateModelStateFilter : IActionFilter
             var problemDetails = new ValidationProblemDetails(errors)
             {
                 Status = 400,
-                Title = "Validation Error",
+                Title = "Erro de Validação",
                 Instance = context.HttpContext.Request.Path
             };
 

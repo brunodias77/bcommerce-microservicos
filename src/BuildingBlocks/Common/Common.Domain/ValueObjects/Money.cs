@@ -14,10 +14,10 @@ public class Money : ValueObject
     public Money(decimal amount, string currency = "BRL")
     {
         if (amount < 0)
-            throw new ArgumentException("Amount cannot be negative", nameof(amount));
+            throw new ArgumentException("Valor não pode ser negativo", nameof(amount));
 
         if (string.IsNullOrWhiteSpace(currency))
-            throw new ArgumentException("Currency cannot be empty", nameof(currency));
+            throw new ArgumentException("Moeda não pode ser vazia", nameof(currency));
 
         Amount = Math.Round(amount, 2);
         Currency = currency.ToUpper();
@@ -26,7 +26,7 @@ public class Money : ValueObject
     public Money Add(Money other)
     {
         if (Currency != other.Currency)
-            throw new InvalidOperationException("Cannot add money with different currencies");
+            throw new InvalidOperationException("Não é possível somar valores com moedas diferentes");
 
         return new Money(Amount + other.Amount, Currency);
     }
@@ -34,7 +34,7 @@ public class Money : ValueObject
     public Money Subtract(Money other)
     {
         if (Currency != other.Currency)
-            throw new InvalidOperationException("Cannot subtract money with different currencies");
+            throw new InvalidOperationException("Não é possível subtrair valores com moedas diferentes");
 
         return new Money(Amount - other.Amount, Currency);
     }

@@ -28,19 +28,19 @@ public class Address : ValueObject
         string country = "BR")
     {
         if (string.IsNullOrWhiteSpace(street))
-            throw new ArgumentException("Street cannot be empty", nameof(street));
+            throw new ArgumentException("Rua não pode ser vazia", nameof(street));
 
         if (string.IsNullOrWhiteSpace(number))
-            throw new ArgumentException("Number cannot be empty", nameof(number));
+            throw new ArgumentException("Número não pode ser vazio", nameof(number));
 
         if (string.IsNullOrWhiteSpace(city))
-            throw new ArgumentException("City cannot be empty", nameof(city));
+            throw new ArgumentException("Cidade não pode ser vazia", nameof(city));
 
         if (string.IsNullOrWhiteSpace(state) || state.Length != 2)
-            throw new ArgumentException("State must be 2 characters", nameof(state));
+            throw new ArgumentException("Estado deve ter 2 caracteres", nameof(state));
 
         if (!IsValidPostalCode(postalCode))
-            throw new ArgumentException("Invalid postal code format", nameof(postalCode));
+            throw new ArgumentException("Formato de CEP inválido", nameof(postalCode));
 
         Street = street;
         Number = number;

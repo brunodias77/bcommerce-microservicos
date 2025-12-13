@@ -48,7 +48,7 @@ public static class ApplicationBuilderExtensions
     /// </summary>
     public static IApplicationBuilder UseCustomHealthChecks(this IApplicationBuilder app)
     {
-        app.UseHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+        app.UseHealthChecks("/saude", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
         {
             ResponseWriter = async (context, report) =>
             {
@@ -56,14 +56,14 @@ public static class ApplicationBuilderExtensions
                 var result = System.Text.Json.JsonSerializer.Serialize(new
                 {
                     status = report.Status.ToString(),
-                    checks = report.Entries.Select(e => new
+                    verificacoes = report.Entries.Select(e => new
                     {
-                        name = e.Key,
+                        nome = e.Key,
                         status = e.Value.Status.ToString(),
-                        description = e.Value.Description,
-                        duration = e.Value.Duration.ToString()
+                        descricao = e.Value.Description,
+                        duracao = e.Value.Duration.ToString()
                     }),
-                    totalDuration = report.TotalDuration.ToString()
+                    duracaoTotal = report.TotalDuration.ToString()
                 });
                 await context.Response.WriteAsync(result);
             }
