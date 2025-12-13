@@ -31,7 +31,7 @@ public class UnhandledExceptionBehavior<TRequest, TResponse> : IPipelineBehavior
 
             _logger.LogError(
                 ex,
-                "Unhandled Exception for Request {Name} {@Request}",
+                "Exceção não tratada para requisição {Name} {@Request}",
                 requestName,
                 request);
 

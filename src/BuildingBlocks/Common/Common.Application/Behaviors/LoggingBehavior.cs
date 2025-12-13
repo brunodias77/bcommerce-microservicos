@@ -26,7 +26,7 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
         var stopwatch = Stopwatch.StartNew();
 
         _logger.LogInformation(
-            "Handling {RequestName} {@Request}",
+            "Processando {RequestName} {@Request}",
             requestName,
             request);
 
@@ -37,14 +37,14 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
             stopwatch.Stop();
 
             _logger.LogInformation(
-                "Handled {RequestName} in {ElapsedMilliseconds}ms",
+                "Processado {RequestName} em {ElapsedMilliseconds}ms",
                 requestName,
                 stopwatch.ElapsedMilliseconds);
 
             if (stopwatch.ElapsedMilliseconds > 3000)
             {
                 _logger.LogWarning(
-                    "Long Running Request: {RequestName} ({ElapsedMilliseconds}ms)",
+                    "Requisição de longa duração: {RequestName} ({ElapsedMilliseconds}ms)",
                     requestName,
                     stopwatch.ElapsedMilliseconds);
             }
@@ -57,7 +57,7 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
 
             _logger.LogError(
                 ex,
-                "Request {RequestName} failed after {ElapsedMilliseconds}ms",
+                "Requisição {RequestName} falhou após {ElapsedMilliseconds}ms",
                 requestName,
                 stopwatch.ElapsedMilliseconds);
 
