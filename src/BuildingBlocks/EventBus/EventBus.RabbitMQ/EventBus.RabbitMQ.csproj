@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\EventBus.Abstractions\EventBus.Abstractions.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.11" />
+      <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.11" />
+      <PackageReference Include="RabbitMQ.Client" Version="7.2.0" />
+    </ItemGroup>
+
+</Project>
