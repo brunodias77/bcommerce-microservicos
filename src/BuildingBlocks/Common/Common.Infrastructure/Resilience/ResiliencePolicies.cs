@@ -33,7 +33,7 @@ public static class ResiliencePolicies
                 {
                     var logger = context.GetLogger();
                     logger?.LogWarning(
-                        "Request failed. Waiting {Delay}ms before retry {Retry}. Reason: {Reason}",
+                        "Requisição falhou. Aguardando {Delay}ms antes do retry {Retry}. Motivo: {Reason}",
                         timespan.TotalMilliseconds,
                         retryCount,
                         outcome.Exception?.Message ?? outcome.Result?.StatusCode.ToString()
@@ -55,7 +55,7 @@ public static class ResiliencePolicies
                 {
                     var logger = context.GetLogger();
                     logger?.LogWarning(
-                        "Database operation failed. Retry {Retry} after {Delay}ms. Error: {Error}",
+                        "Operação de banco de dados falhou. Nova tentativa {Retry} após {Delay}ms. Erro: {Error}",
                         retryCount,
                         timespan.TotalMilliseconds,
                         exception.Message
@@ -82,7 +82,7 @@ public static class ResiliencePolicies
                 {
                     var logger = context.GetLogger();
                     logger?.LogWarning(
-                        "Circuit breaker opened for {Duration}s. Reason: {Reason}",
+                        "Circuit breaker aberto por {Duration}s. Motivo: {Reason}",
                         duration.TotalSeconds,
                         outcome.Exception?.Message ?? outcome.Result?.StatusCode.ToString()
                     );
@@ -90,7 +90,7 @@ public static class ResiliencePolicies
                 onReset: context =>
                 {
                     var logger = context.GetLogger();
-                    logger?.LogInformation("Circuit breaker reset - service recovered");
+                    logger?.LogInformation("Circuit breaker resetado - serviço recuperado");
                 },
                 onHalfOpen: () =>
                 {
@@ -143,10 +143,10 @@ public static class ResiliencePolicies
             onTimeoutAsync: (context, timespan, task) =>
             {
                 var logger = context.GetLogger();
-                logger?.LogWarning(
-                    "Request timed out after {Timeout}s",
-                    timespan.TotalSeconds
-                );
+                    logger?.LogWarning(
+                        "Requisição expirou após {Timeout}s",
+                        timespan.TotalSeconds
+                    );
                 return Task.CompletedTask;
             });
     }
@@ -162,10 +162,10 @@ public static class ResiliencePolicies
             onTimeoutAsync: (context, timespan, task) =>
             {
                 var logger = context.GetLogger();
-                logger?.LogError(
-                    "Operation cancelled after {Timeout}s timeout",
-                    timespan.TotalSeconds
-                );
+                    logger?.LogError(
+                        "Operação cancelada após timeout de {Timeout}s",
+                        timespan.TotalSeconds
+                    );
                 return Task.CompletedTask;
             });
     }
@@ -214,13 +214,13 @@ public static class ResiliencePolicies
             .FallbackAsync(
                 fallbackValue: new HttpResponseMessage(System.Net.HttpStatusCode.ServiceUnavailable)
                 {
-                    Content = new StringContent("{\"error\": \"Service temporarily unavailable\"}")
+                    Content = new StringContent("{\"erro\": \"Serviço temporariamente indisponível\"}")
                 },
                 onFallbackAsync: (outcome, context) =>
                 {
                     var logger = context.GetLogger();
                     logger?.LogWarning(
-                        "Fallback activated. Reason: {Reason}",
+                        "Fallback ativado. Motivo: {Reason}",
                         outcome.Exception?.Message ?? outcome.Result?.StatusCode.ToString()
                     );
                     return Task.CompletedTask;
@@ -242,7 +242,7 @@ public static class ResiliencePolicies
             onBulkheadRejectedAsync: context =>
             {
                 var logger = context.GetLogger();
-                logger?.LogWarning("Bulkhead rejected - too many concurrent requests");
+                logger?.LogWarning("Bulkhead rejeitado - muitas requisições concorrentes");
                 return Task.CompletedTask;
             });
     }

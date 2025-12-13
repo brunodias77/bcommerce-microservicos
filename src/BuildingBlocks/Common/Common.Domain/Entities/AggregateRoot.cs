@@ -42,7 +42,7 @@ public abstract class AggregateRoot : Entity, IAggregateRoot
     public virtual void Delete()
     {
         if (IsDeleted)
-            throw new InvalidOperationException("Entity is already deleted");
+            throw new InvalidOperationException("Entidade já está excluída");
 
         DeletedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
@@ -54,7 +54,7 @@ public abstract class AggregateRoot : Entity, IAggregateRoot
     public virtual void Restore()
     {
         if (!IsDeleted)
-            throw new InvalidOperationException("Entity is not deleted");
+            throw new InvalidOperationException("Entidade não está excluída");
 
         DeletedAt = null;
         UpdatedAt = DateTime.UtcNow;

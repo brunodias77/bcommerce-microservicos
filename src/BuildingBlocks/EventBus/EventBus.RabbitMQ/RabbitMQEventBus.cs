@@ -89,7 +89,7 @@ public class RabbitMQEventBus : IEventBus, IDisposable
             cancellationToken: cancellationToken);
 
         _logger.LogInformation(
-            "Published event {EventId} of type {EventName}",
+            "Evento publicado {EventId} do tipo {EventName}",
             @event.Id,
             eventName);
     }
@@ -101,7 +101,7 @@ public class RabbitMQEventBus : IEventBus, IDisposable
         var eventName = _subsManager.GetEventKey<TEvent>();
 
         _logger.LogInformation(
-            "Subscribing to event {EventName} with {HandlerName}",
+            "Inscrevendo no evento {EventName} com {HandlerName}",
             eventName,
             typeof(THandler).Name);
 
@@ -192,7 +192,7 @@ public class RabbitMQEventBus : IEventBus, IDisposable
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error processing event {EventName}", eventName);
+            _logger.LogError(ex, "Erro ao processar evento {EventName}", eventName);
 
             // Reject and requeue
             if (_consumerChannel != null)
@@ -204,7 +204,7 @@ public class RabbitMQEventBus : IEventBus, IDisposable
     {
         if (!_subsManager.HasSubscriptionsForEvent(eventName))
         {
-            _logger.LogWarning("No subscription for event {EventName}", eventName);
+            _logger.LogWarning("Nenhuma inscrição para evento {EventName}", eventName);
             return;
         }
 

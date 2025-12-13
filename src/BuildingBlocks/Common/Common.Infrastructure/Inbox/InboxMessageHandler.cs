@@ -31,7 +31,7 @@ public abstract class InboxMessageHandler
         if (await _inboxRepository.ExistsAsync(messageId, cancellationToken))
         {
             _logger.LogInformation(
-                "Message {MessageId} of type {MessageType} already processed. Skipping.",
+                "Mensagem {MessageId} do tipo {MessageType} já processada. Pulando.",
                 messageId,
                 messageType);
 
@@ -49,7 +49,7 @@ public abstract class InboxMessageHandler
                 cancellationToken);
 
             _logger.LogInformation(
-                "Successfully processed message {MessageId} of type {MessageType}",
+                "Mensagem {MessageId} do tipo {MessageType} processada com sucesso",
                 messageId,
                 messageType);
 
@@ -59,7 +59,7 @@ public abstract class InboxMessageHandler
         {
             _logger.LogError(
                 ex,
-                "Error processing message {MessageId} of type {MessageType}",
+                "Erro ao processar mensagem {MessageId} do tipo {MessageType}",
                 messageId,
                 messageType);
 
