@@ -142,6 +142,37 @@ services:
     networks:
       - bcommerce-network
 
+  # ===========================================
+  # API PAYMENT STRIPE
+  # ===========================================
+  api-payment:
+    build:
+      context: .
+      dockerfile: src/Services/Payment/PaymentStripe.API/Dockerfile
+    container_name: bcommerce-payment
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - SERVICE_NAME=payment-api
+      - Stripe__SecretKey=${STRIPE_SECRET_KEY:-sk_test_YOUR_SECRET_KEY}
+      - Stripe__PublishableKey=${STRIPE_PUBLISHABLE_KEY:-pk_test_YOUR_PUBLISHABLE_KEY}
+      - Stripe__WebhookSecret=${STRIPE_WEBHOOK_SECRET:-whsec_YOUR_WEBHOOK_SECRET}
+      - RabbitMQ__HostName=rabbitmq
+      - RabbitMQ__UserName=bcommerce
+      - RabbitMQ__Password=bcommerce123
+      - RabbitMQ__Port=5672
+      - Redis__ConnectionString=redis:6379,password=bcommerce123
+      - Seq__ServerUrl=http://seq:5341
+    ports:
+      - "5003:80"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - bcommerce-network
+
 volumes:
   postgres_data:
   rabbitmq_data:
