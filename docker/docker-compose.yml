@@ -1,0 +1,184 @@
+version: '3.8'
+
+services:
+  # ===========================================
+  # BANCO DE DADOS - PostgreSQL
+  # ===========================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: bcommerce-postgres
+    environment:
+      POSTGRES_USER: bcommerce
+      POSTGRES_PASSWORD: bcommerce123
+      POSTGRES_DB: bcommerce
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bcommerce -d bcommerce"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bcommerce-network
+
+  # ===========================================
+  # MESSAGE BROKER - RabbitMQ
+  # ===========================================
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: bcommerce-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: bcommerce
+      RABBITMQ_DEFAULT_PASS: bcommerce123
+      RABBITMQ_DEFAULT_VHOST: /
+    ports:
+      - "5672:5672"    # AMQP protocol
+      - "15672:15672"  # Management UI
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bcommerce-network
+
+  # ===========================================
+  # CACHE - Redis
+  # ===========================================
+  redis:
+    image: redis:7-alpine
+    container_name: bcommerce-redis
+    command: redis-server --appendonly yes --requirepass bcommerce123
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "bcommerce123", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bcommerce-network
+
+  # ===========================================
+  # OBSERVABILITY - Seq (Log aggregator)
+  # ===========================================
+  seq:
+    image: datalust/seq:latest
+    container_name: bcommerce-seq
+    environment:
+      ACCEPT_EULA: Y
+    ports:
+      - "5341:5341"  # Ingestion
+      - "8081:80"    # UI
+    volumes:
+      - seq_data:/data
+    networks:
+      - bcommerce-network
+
+  # ===========================================
+  # API PRODUCER
+  # ===========================================
+  api-producer:
+    build:
+      context: .
+      dockerfile: src/Services/Producer/Producer.API/Dockerfile
+    container_name: bcommerce-producer
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__PostgreSQL=Host=postgres;Database=bcommerce;Username=bcommerce;Password=bcommerce123
+      - RabbitMQ__HostName=rabbitmq
+      - RabbitMQ__UserName=bcommerce
+      - RabbitMQ__Password=bcommerce123
+      - RabbitMQ__Port=5672
+      - Redis__ConnectionString=redis:6379,password=bcommerce123
+      - Seq__ServerUrl=http://seq:5341
+    ports:
+      - "5001:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - bcommerce-network
+
+  # ===========================================
+  # API CONSUMER
+  # ===========================================
+  api-consumer:
+    build:
+      context: .
+      dockerfile: src/Services/Consumer/Consumer.API/Dockerfile
+    container_name: bcommerce-consumer
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - SERVICE_NAME=consumer-api
+      - ConnectionStrings__PostgreSQL=Host=postgres;Database=bcommerce;Username=bcommerce;Password=bcommerce123
+      - RabbitMQ__HostName=rabbitmq
+      - RabbitMQ__UserName=bcommerce
+      - RabbitMQ__Password=bcommerce123
+      - RabbitMQ__Port=5672
+      - Redis__ConnectionString=redis:6379,password=bcommerce123
+      - Seq__ServerUrl=http://seq:5341
+    ports:
+      - "5002:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - bcommerce-network
+
+  # ===========================================
+  # API PAYMENT STRIPE
+  # ===========================================
+  api-payment:
+    build:
+      context: .
+      dockerfile: src/Services/Payment/PaymentStripe.API/Dockerfile
+    container_name: bcommerce-payment
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - SERVICE_NAME=payment-api
+      - Stripe__SecretKey=${STRIPE_SECRET_KEY:-sk_test_YOUR_SECRET_KEY}
+      - Stripe__PublishableKey=${STRIPE_PUBLISHABLE_KEY:-pk_test_YOUR_PUBLISHABLE_KEY}
+      - Stripe__WebhookSecret=${STRIPE_WEBHOOK_SECRET:-whsec_YOUR_WEBHOOK_SECRET}
+      - RabbitMQ__HostName=rabbitmq
+      - RabbitMQ__UserName=bcommerce
+      - RabbitMQ__Password=bcommerce123
+      - RabbitMQ__Port=5672
+      - Redis__ConnectionString=redis:6379,password=bcommerce123
+      - Seq__ServerUrl=http://seq:5341
+    ports:
+      - "5003:80"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - bcommerce-network
+
+volumes:
+  postgres_data:
+  rabbitmq_data:
+  redis_data:
+  seq_data:
+
+networks:
+  bcommerce-network:
+    driver: bridge
