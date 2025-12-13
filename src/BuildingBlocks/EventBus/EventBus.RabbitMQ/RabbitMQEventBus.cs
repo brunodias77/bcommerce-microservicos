@@ -19,7 +19,9 @@ public class RabbitMQEventBus : IEventBus, IDisposable
     private readonly ILogger<RabbitMQEventBus> _logger;
     private readonly string _exchangeName;
     private readonly string _queueName;
+    private readonly SemaphoreSlim _consumerLock = new(1, 1);
     private IChannel? _consumerChannel;
+    private bool _consumerStarted;
 
     public RabbitMQEventBus(
         IRabbitMQConnection connection,
@@ -94,6 +96,45 @@ public class RabbitMQEventBus : IEventBus, IDisposable
             eventName);
     }
 
+    public async Task PublishDynamicAsync(string eventType, string payload, CancellationToken cancellationToken = default)
+    {
+        if (!_connection.IsConnected)
+        {
+            _connection.TryConnect();
+        }
+
+        using var channel = _connection.CreateModel();
+
+        await channel.ExchangeDeclareAsync(
+            exchange: _exchangeName,
+            type: ExchangeType.Direct,
+            durable: true,
+            autoDelete: false,
+            cancellationToken: cancellationToken);
+
+        var body = Encoding.UTF8.GetBytes(payload);
+
+        var properties = new BasicProperties
+        {
+            DeliveryMode = DeliveryModes.Persistent,
+            MessageId = Guid.NewGuid().ToString(),
+            Timestamp = new AmqpTimestamp(DateTimeOffset.UtcNow.ToUnixTimeSeconds()),
+            Type = eventType
+        };
+
+        await channel.BasicPublishAsync(
+            exchange: _exchangeName,
+            routingKey: eventType,
+            mandatory: true,
+            basicProperties: properties,
+            body: body,
+            cancellationToken: cancellationToken);
+
+        _logger.LogInformation(
+            "Evento dinâmico publicado do tipo {EventType}",
+            eventType);
+    }
+
     public void Subscribe<TEvent, THandler>()
         where TEvent : IntegrationEvent
         where THandler : IIntegrationEventHandler<TEvent>
@@ -107,7 +148,7 @@ public class RabbitMQEventBus : IEventBus, IDisposable
 
         _subsManager.AddSubscription<TEvent, THandler>();
         EnsureBindingAsync(eventName).GetAwaiter().GetResult();
-        StartBasicConsume();
+        StartBasicConsumeAsync().GetAwaiter().GetResult();
     }
 
     public void Unsubscribe<TEvent, THandler>()
@@ -117,37 +158,47 @@ public class RabbitMQEventBus : IEventBus, IDisposable
         _subsManager.RemoveSubscription<TEvent, THandler>();
     }
 
-    private async void StartBasicConsume()
+    private async Task StartBasicConsumeAsync()
     {
-        if (_consumerChannel != null) return;
-
-        if (!_connection.IsConnected)
+        await _consumerLock.WaitAsync();
+        try
         {
-            _connection.TryConnect();
+            if (_consumerStarted) return;
+
+            if (!_connection.IsConnected)
+            {
+                _connection.TryConnect();
+            }
+
+            _consumerChannel = _connection.CreateModel();
+
+            await _consumerChannel.ExchangeDeclareAsync(
+                exchange: _exchangeName,
+                type: ExchangeType.Direct,
+                durable: true,
+                autoDelete: false);
+
+            await _consumerChannel.QueueDeclareAsync(
+                queue: _queueName,
+                durable: true,
+                exclusive: false,
+                autoDelete: false,
+                arguments: null);
+
+            var consumer = new AsyncEventingBasicConsumer(_consumerChannel);
+            consumer.ReceivedAsync += Consumer_Received;
+
+            await _consumerChannel.BasicConsumeAsync(
+                queue: _queueName,
+                autoAck: false,
+                consumer: consumer);
+
+            _consumerStarted = true;
         }
-
-        _consumerChannel = _connection.CreateModel();
-
-        await _consumerChannel.ExchangeDeclareAsync(
-            exchange: _exchangeName,
-            type: ExchangeType.Direct,
-            durable: true,
-            autoDelete: false);
-
-        await _consumerChannel.QueueDeclareAsync(
-            queue: _queueName,
-            durable: true,
-            exclusive: false,
-            autoDelete: false,
-            arguments: null);
-
-        var consumer = new AsyncEventingBasicConsumer(_consumerChannel);
-        consumer.ReceivedAsync += Consumer_Received;
-
-        await _consumerChannel.BasicConsumeAsync(
-            queue: _queueName,
-            autoAck: false,
-            consumer: consumer);
+        finally
+        {
+            _consumerLock.Release();
+        }
     }
 
     private async Task EnsureBindingAsync(string eventName)
@@ -232,29 +283,42 @@ public class RabbitMQEventBus : IEventBus, IDisposable
         }
     }
 
-    private async void SubsManager_OnEventRemoved(object? sender, string eventName)
+    private void SubsManager_OnEventRemoved(object? sender, string eventName)
     {
-        if (!_connection.IsConnected)
+        _ = HandleEventRemovedAsync(eventName);
+    }
+
+    private async Task HandleEventRemovedAsync(string eventName)
+    {
+        try
         {
-            _connection.TryConnect();
+            if (!_connection.IsConnected)
+            {
+                _connection.TryConnect();
+            }
+
+            using var channel = _connection.CreateModel();
+            await channel.QueueUnbindAsync(
+                queue: _queueName,
+                exchange: _exchangeName,
+                routingKey: eventName);
+
+            if (_subsManager.IsEmpty)
+            {
+                if (_consumerChannel != null)
+                    await _consumerChannel.CloseAsync();
+            }
         }
-
-        using var channel = _connection.CreateModel();
-        await channel.QueueUnbindAsync(
-            queue: _queueName,
-            exchange: _exchangeName,
-            routingKey: eventName);
-
-        if (_subsManager.IsEmpty)
+        catch (Exception ex)
         {
-            if (_consumerChannel != null)
-                await _consumerChannel.CloseAsync();
+            _logger.LogError(ex, "Erro ao remover binding do evento {EventName}", eventName);
         }
     }
 
     public void Dispose()
     {
         _consumerChannel?.Dispose();
+        _consumerLock.Dispose();
         _subsManager.Clear();
     }
 }

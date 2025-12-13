@@ -1,5 +1,5 @@
+using EventBus.Abstractions;
 using Microsoft.Extensions.Logging;
-using System.Text.Json;
 
 namespace Common.Infrastructure.Outbox;
 
@@ -35,13 +35,10 @@ public class OutboxProcessor
                     message.Id,
                     message.EventType);
 
-                // Desserializa o payload do evento
-                var eventData = JsonSerializer.Deserialize<Dictionary<string, object>>(message.Payload);
-
-                // Publica no Event Bus
-                await _eventBus.PublishAsync(
+                // Publica no Event Bus usando o método dinâmico
+                await _eventBus.PublishDynamicAsync(
                     message.EventType,
-                    eventData!,
+                    message.Payload,
                     cancellationToken);
 
                 // Marca como processado
@@ -65,10 +62,4 @@ public class OutboxProcessor
             }
         }
     }
-}
-
-// Interface temporária para IEventBus (será criada depois)
-public interface IEventBus
-{
-    Task PublishAsync(string eventType, object eventData, CancellationToken cancellationToken);
 }
