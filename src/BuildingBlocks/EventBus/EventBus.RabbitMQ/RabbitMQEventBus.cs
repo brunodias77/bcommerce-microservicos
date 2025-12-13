@@ -34,9 +34,21 @@ public class RabbitMQEventBus : IEventBus, IDisposable
         _serviceProvider = serviceProvider;
         _logger = logger;
         _exchangeName = exchangeName;
-        _queueName = queueName;
+        _queueName = string.IsNullOrWhiteSpace(queueName) ? GenerateDefaultQueueName() : queueName;
 
         _subsManager.OnEventRemoved += SubsManager_OnEventRemoved;
+    }
+
+    private static string GenerateDefaultQueueName()
+    {
+        var serviceName = Environment.GetEnvironmentVariable("SERVICE_NAME")
+                          ?? AppDomain.CurrentDomain.FriendlyName
+                          ?? "service";
+        var normalized = new string(serviceName
+            .ToLowerInvariant()
+            .Select(c => char.IsLetterOrDigit(c) ? c : '_')
+            .ToArray());
+        return $"{normalized}.events";
     }
 
     public async Task PublishAsync<TEvent>(TEvent @event, CancellationToken cancellationToken = default)
@@ -94,6 +106,7 @@ public class RabbitMQEventBus : IEventBus, IDisposable
             typeof(THandler).Name);
 
         _subsManager.AddSubscription<TEvent, THandler>();
+        EnsureBindingAsync(eventName).GetAwaiter().GetResult();
         StartBasicConsume();
     }
 
@@ -135,6 +148,34 @@ public class RabbitMQEventBus : IEventBus, IDisposable
             queue: _queueName,
             autoAck: false,
             consumer: consumer);
+    }
+
+    private async Task EnsureBindingAsync(string eventName)
+    {
+        if (!_connection.IsConnected)
+        {
+            _connection.TryConnect();
+        }
+
+        using var channel = _connection.CreateModel();
+
+        await channel.ExchangeDeclareAsync(
+            exchange: _exchangeName,
+            type: ExchangeType.Direct,
+            durable: true,
+            autoDelete: false);
+
+        await channel.QueueDeclareAsync(
+            queue: _queueName,
+            durable: true,
+            exclusive: false,
+            autoDelete: false,
+            arguments: null);
+
+        await channel.QueueBindAsync(
+            queue: _queueName,
+            exchange: _exchangeName,
+            routingKey: eventName);
     }
 
     private async Task Consumer_Received(object sender, BasicDeliverEventArgs eventArgs)
