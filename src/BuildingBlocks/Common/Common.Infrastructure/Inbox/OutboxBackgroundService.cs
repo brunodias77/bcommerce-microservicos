@@ -24,7 +24,7 @@ public class OutboxBackgroundService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("Outbox Background Service is starting");
+        _logger.LogInformation("Serviço de background de Outbox iniciando");
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -37,12 +37,12 @@ public class OutboxBackgroundService : BackgroundService
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while processing outbox messages");
+                _logger.LogError(ex, "Erro ao processar mensagens do outbox");
             }
 
             await Task.Delay(_interval, stoppingToken);
         }
 
-        _logger.LogInformation("Outbox Background Service is stopping");
+        _logger.LogInformation("Serviço de background de Outbox encerrando");
     }
 }

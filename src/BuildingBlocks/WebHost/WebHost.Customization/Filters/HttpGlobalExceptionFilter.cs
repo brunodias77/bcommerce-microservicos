@@ -23,7 +23,7 @@ public class HttpGlobalExceptionFilter : IExceptionFilter
     {
         _logger.LogError(
             context.Exception,
-            "An exception occurred: {ExceptionMessage}",
+            "Ocorreu uma exceção: {ExceptionMessage}",
             context.Exception.Message);
 
         var problemDetails = context.Exception switch
@@ -31,20 +31,20 @@ public class HttpGlobalExceptionFilter : IExceptionFilter
             ValidationException validationEx => new ValidationProblemDetails(validationEx.Errors)
             {
                 Status = (int)HttpStatusCode.BadRequest,
-                Title = "Validation Error",
+                Title = "Erro de Validação",
                 Instance = context.HttpContext.Request.Path
             },
             NotFoundException notFoundEx => new ProblemDetails
             {
                 Status = (int)HttpStatusCode.NotFound,
-                Title = "Resource Not Found",
+                Title = "Recurso Não Encontrado",
                 Detail = notFoundEx.Message,
                 Instance = context.HttpContext.Request.Path
             },
             BusinessRuleException businessEx => new ProblemDetails
             {
                 Status = (int)HttpStatusCode.BadRequest,
-                Title = "Business Rule Violation",
+                Title = "Violação de Regra de Negócio",
                 Detail = businessEx.Message,
                 Instance = context.HttpContext.Request.Path,
                 Extensions = { { "code", businessEx.Code } }
@@ -52,8 +52,8 @@ public class HttpGlobalExceptionFilter : IExceptionFilter
             _ => new ProblemDetails
             {
                 Status = (int)HttpStatusCode.InternalServerError,
-                Title = "Internal Server Error",
-                Detail = "An unexpected error occurred",
+                Title = "Erro Interno do Servidor",
+                Detail = "Ocorreu um erro inesperado",
                 Instance = context.HttpContext.Request.Path
             }
         };

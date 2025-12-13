@@ -40,30 +40,30 @@ public class ExceptionHandlingMiddleware
 
         _logger.LogError(
             exception,
-            "An unhandled exception occurred. CorrelationId: {CorrelationId}",
+            "Ocorreu uma exceção não tratada. CorrelationId: {CorrelationId}",
             correlationId);
 
         var (statusCode, title, errors) = exception switch
         {
             ValidationException validationEx => (
                 HttpStatusCode.BadRequest,
-                "Validation Error",
+                "Erro de Validação",
                 validationEx.Errors
             ),
             NotFoundException notFoundEx => (
                 HttpStatusCode.NotFound,
-                "Resource Not Found",
-                new Dictionary<string, string[]> { { "error", new[] { notFoundEx.Message } } }
+                "Recurso Não Encontrado",
+                new Dictionary<string, string[]> { { "erro", new[] { notFoundEx.Message } } }
             ),
             BusinessRuleException businessEx => (
                 HttpStatusCode.BadRequest,
-                "Business Rule Violation",
+                "Violação de Regra de Negócio",
                 new Dictionary<string, string[]> { { businessEx.Code, new[] { businessEx.Message } } }
             ),
             _ => (
                 HttpStatusCode.InternalServerError,
-                "Internal Server Error",
-                new Dictionary<string, string[]> { { "error", new[] { "An unexpected error occurred" } } }
+                "Erro Interno do Servidor",
+                new Dictionary<string, string[]> { { "erro", new[] { "Ocorreu um erro inesperado" } } }
             )
         };
 

@@ -26,7 +26,7 @@ public class EventBusSubscriptionsManager : IEventBusSubscriptionsManager
         if (_handlers[eventName].Contains(handlerType))
         {
             throw new ArgumentException(
-                $"Handler Type {handlerType.Name} already registered for '{eventName}'",
+                $"Tipo de Handler {handlerType.Name} já registrado para '{eventName}'",
                 nameof(handlerType));
         }
 

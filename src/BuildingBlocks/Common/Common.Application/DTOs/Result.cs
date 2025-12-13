@@ -12,10 +12,10 @@ public class Result
     protected Result(bool isSuccess, string? error)
     {
         if (isSuccess && error != null)
-            throw new InvalidOperationException("Successful result cannot have an error");
+            throw new InvalidOperationException("Resultado bem-sucedido não pode conter erro");
 
         if (!isSuccess && error == null)
-            throw new InvalidOperationException("Failed result must have an error");
+            throw new InvalidOperationException("Resultado com falha deve conter erro");
 
         IsSuccess = isSuccess;
         Error = error;

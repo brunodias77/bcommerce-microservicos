@@ -13,12 +13,12 @@ public partial class Email : ValueObject
     public Email(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new ArgumentException("Email cannot be empty", nameof(value));
+            throw new ArgumentException("Email não pode ser vazio", nameof(value));
 
         value = value.Trim().ToLower();
 
         if (!IsValidEmail(value))
-            throw new ArgumentException("Invalid email format", nameof(value));
+            throw new ArgumentException("Formato de email inválido", nameof(value));
 
         Value = value;
     }

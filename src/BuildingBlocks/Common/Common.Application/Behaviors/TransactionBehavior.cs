@@ -35,7 +35,7 @@ public class TransactionBehavior<TRequest, TResponse> : IPipelineBehavior<TReque
         }
 
         _logger.LogInformation(
-            "Begin transaction for {RequestName}",
+            "Iniciando transação para {RequestName}",
             requestName);
 
         try
@@ -45,7 +45,7 @@ public class TransactionBehavior<TRequest, TResponse> : IPipelineBehavior<TReque
             await _unitOfWork.SaveEntitiesAsync(cancellationToken);
 
             _logger.LogInformation(
-                "Committed transaction for {RequestName}",
+                "Transação confirmada para {RequestName}",
                 requestName);
 
             return response;
@@ -54,7 +54,7 @@ public class TransactionBehavior<TRequest, TResponse> : IPipelineBehavior<TReque
         {
             _logger.LogError(
                 ex,
-                "Transaction failed for {RequestName}",
+                "Transação falhou para {RequestName}",
                 requestName);
 
             throw;

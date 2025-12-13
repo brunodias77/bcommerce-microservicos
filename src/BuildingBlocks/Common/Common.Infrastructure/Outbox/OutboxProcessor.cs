@@ -31,7 +31,7 @@ public class OutboxProcessor
             try
             {
                 _logger.LogInformation(
-                    "Processing outbox message {MessageId} of type {EventType}",
+                    "Processando mensagem do outbox {MessageId} de tipo {EventType}",
                     message.Id,
                     message.EventType);
 
@@ -48,14 +48,14 @@ public class OutboxProcessor
                 await _outboxRepository.MarkAsProcessedAsync(message.Id, cancellationToken);
 
                 _logger.LogInformation(
-                    "Successfully processed outbox message {MessageId}",
+                    "Mensagem do outbox {MessageId} processada com sucesso",
                     message.Id);
             }
             catch (Exception ex)
             {
                 _logger.LogError(
                     ex,
-                    "Error processing outbox message {MessageId}",
+                    "Erro ao processar mensagem do outbox {MessageId}",
                     message.Id);
 
                 await _outboxRepository.MarkAsFailedAsync(
