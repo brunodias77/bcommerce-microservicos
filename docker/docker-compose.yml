@@ -1,27 +1,133 @@
-version: '3.8'
-
 services:
   # ===========================================
-  # BANCO DE DADOS - PostgreSQL
+  # BANCOS DE DADOS - PostgreSQL
   # ===========================================
-  postgres:
+  postgres-user:
     image: postgres:16-alpine
-    container_name: bcommerce-postgres
+    container_name: bcommerce-postgres-user
     environment:
       POSTGRES_USER: bcommerce
       POSTGRES_PASSWORD: bcommerce123
-      POSTGRES_DB: bcommerce
+      POSTGRES_DB: bcommerce_user
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_user_data:/var/lib/postgresql/data
+      - ../docs/db/00_shared_infrastructure.sql:/docker-entrypoint-initdb.d/00_shared_infrastructure.sql
+      - ../docs/db/01_user_service.sql:/docker-entrypoint-initdb.d/01_user_service.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U bcommerce -d bcommerce"]
+      test: ["CMD-SHELL", "pg_isready -U bcommerce -d bcommerce_user"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
       - bcommerce-network
+
+  postgres-catalog:
+    image: postgres:16-alpine
+    container_name: bcommerce-postgres-catalog
+    environment:
+      POSTGRES_USER: bcommerce
+      POSTGRES_PASSWORD: bcommerce123
+      POSTGRES_DB: bcommerce_catalog
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_catalog_data:/var/lib/postgresql/data
+      - ../docs/db/00_shared_infrastructure.sql:/docker-entrypoint-initdb.d/00_shared_infrastructure.sql
+      - ../docs/db/02_catalog_service.sql:/docker-entrypoint-initdb.d/02_catalog_service.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bcommerce -d bcommerce_catalog"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bcommerce-network
+
+  postgres-cart:
+    image: postgres:16-alpine
+    container_name: bcommerce-postgres-cart
+    environment:
+      POSTGRES_USER: bcommerce
+      POSTGRES_PASSWORD: bcommerce123
+      POSTGRES_DB: bcommerce_cart
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_cart_data:/var/lib/postgresql/data
+      - ../docs/db/00_shared_infrastructure.sql:/docker-entrypoint-initdb.d/00_shared_infrastructure.sql
+      - ../docs/db/03_cart_service.sql:/docker-entrypoint-initdb.d/03_cart_service.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bcommerce -d bcommerce_cart"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bcommerce-network
+
+  postgres-order:
+    image: postgres:16-alpine
+    container_name: bcommerce-postgres-order
+    environment:
+      POSTGRES_USER: bcommerce
+      POSTGRES_PASSWORD: bcommerce123
+      POSTGRES_DB: bcommerce_order
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_order_data:/var/lib/postgresql/data
+      - ../docs/db/00_shared_infrastructure.sql:/docker-entrypoint-initdb.d/00_shared_infrastructure.sql
+      - ../docs/db/04_order_service.sql:/docker-entrypoint-initdb.d/04_order_service.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bcommerce -d bcommerce_order"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bcommerce-network
+
+  postgres-payment:
+    image: postgres:16-alpine
+    container_name: bcommerce-postgres-payment
+    environment:
+      POSTGRES_USER: bcommerce
+      POSTGRES_PASSWORD: bcommerce123
+      POSTGRES_DB: bcommerce_payment
+    ports:
+      - "5436:5432"
+    volumes:
+      - postgres_payment_data:/var/lib/postgresql/data
+      - ../docs/db/00_shared_infrastructure.sql:/docker-entrypoint-initdb.d/00_shared_infrastructure.sql
+      - ../docs/db/05_payment_service.sql:/docker-entrypoint-initdb.d/05_payment_service.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bcommerce -d bcommerce_payment"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bcommerce-network
+
+  postgres-coupon:
+    image: postgres:16-alpine
+    container_name: bcommerce-postgres-coupon
+    environment:
+      POSTGRES_USER: bcommerce
+      POSTGRES_PASSWORD: bcommerce123
+      POSTGRES_DB: bcommerce_coupon
+    ports:
+      - "5437:5432"
+    volumes:
+      - postgres_coupon_data:/var/lib/postgresql/data
+      - ../docs/db/00_shared_infrastructure.sql:/docker-entrypoint-initdb.d/00_shared_infrastructure.sql
+      - ../docs/db/06_coupon_service.sql:/docker-entrypoint-initdb.d/06_coupon_service.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bcommerce -d bcommerce_coupon"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bcommerce-network
+
 
   # ===========================================
   # MESSAGE BROKER - RabbitMQ
@@ -73,6 +179,7 @@ services:
     container_name: bcommerce-seq
     environment:
       ACCEPT_EULA: Y
+      SEQ_FIRSTRUN_ADMINPASSWORD: bcommerce123
     ports:
       - "5341:5341"  # Ingestion
       - "8081:80"    # UI
@@ -81,100 +188,14 @@ services:
     networks:
       - bcommerce-network
 
-  # ===========================================
-  # API PRODUCER
-  # ===========================================
-  api-producer:
-    build:
-      context: .
-      dockerfile: src/Services/Producer/Producer.API/Dockerfile
-    container_name: bcommerce-producer
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:80
-      - ConnectionStrings__PostgreSQL=Host=postgres;Database=bcommerce;Username=bcommerce;Password=bcommerce123
-      - RabbitMQ__HostName=rabbitmq
-      - RabbitMQ__UserName=bcommerce
-      - RabbitMQ__Password=bcommerce123
-      - RabbitMQ__Port=5672
-      - Redis__ConnectionString=redis:6379,password=bcommerce123
-      - Seq__ServerUrl=http://seq:5341
-    ports:
-      - "5001:80"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - bcommerce-network
-
-  # ===========================================
-  # API CONSUMER
-  # ===========================================
-  api-consumer:
-    build:
-      context: .
-      dockerfile: src/Services/Consumer/Consumer.API/Dockerfile
-    container_name: bcommerce-consumer
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:80
-      - SERVICE_NAME=consumer-api
-      - ConnectionStrings__PostgreSQL=Host=postgres;Database=bcommerce;Username=bcommerce;Password=bcommerce123
-      - RabbitMQ__HostName=rabbitmq
-      - RabbitMQ__UserName=bcommerce
-      - RabbitMQ__Password=bcommerce123
-      - RabbitMQ__Port=5672
-      - Redis__ConnectionString=redis:6379,password=bcommerce123
-      - Seq__ServerUrl=http://seq:5341
-    ports:
-      - "5002:80"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - bcommerce-network
-
-  # ===========================================
-  # API PAYMENT STRIPE
-  # ===========================================
-  api-payment:
-    build:
-      context: .
-      dockerfile: src/Services/Payment/PaymentStripe.API/Dockerfile
-    container_name: bcommerce-payment
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:80
-      - SERVICE_NAME=payment-api
-      - Stripe__SecretKey=${STRIPE_SECRET_KEY:-sk_test_YOUR_SECRET_KEY}
-      - Stripe__PublishableKey=${STRIPE_PUBLISHABLE_KEY:-pk_test_YOUR_PUBLISHABLE_KEY}
-      - Stripe__WebhookSecret=${STRIPE_WEBHOOK_SECRET:-whsec_YOUR_WEBHOOK_SECRET}
-      - RabbitMQ__HostName=rabbitmq
-      - RabbitMQ__UserName=bcommerce
-      - RabbitMQ__Password=bcommerce123
-      - RabbitMQ__Port=5672
-      - Redis__ConnectionString=redis:6379,password=bcommerce123
-      - Seq__ServerUrl=http://seq:5341
-    ports:
-      - "5003:80"
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - bcommerce-network
 
 volumes:
-  postgres_data:
+  postgres_user_data:
+  postgres_catalog_data:
+  postgres_cart_data:
+  postgres_order_data:
+  postgres_payment_data:
+  postgres_coupon_data:
   rabbitmq_data:
   redis_data:
   seq_data:
