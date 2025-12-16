@@ -142,7 +142,7 @@ Bcommerce.Solution/
 │   ├── Services/
 │   │   │
 │   │   ├── User/
-│   │   │   ├── ECommerce.User.API/
+│   │   │   ├── Bcommerce.User.API/
 │   │   │   │   ├── Controllers/
 │   │   │   │   │   ├── AuthController.cs
 │   │   │   │   │   ├── UsersController.cs
@@ -157,7 +157,7 @@ Bcommerce.Solution/
 │   │   │   │   ├── appsettings.json
 │   │   │   │   └── appsettings.Development.json
 │   │   │   │
-│   │   │   ├── ECommerce.User.Application/
+│   │   │   ├── Bcommerce.User.Application/
 │   │   │   │   ├── Commands/
 │   │   │   │   │   ├── Auth/
 │   │   │   │   │   │   ├── RegisterUser/
@@ -203,7 +203,7 @@ Bcommerce.Solution/
 │   │   │   │   └── Validators/
 │   │   │   │       └── (FluentValidation validators)
 │   │   │   │
-│   │   │   ├── ECommerce.User.Domain/
+│   │   │   ├── Bcommerce.User.Domain/
 │   │   │   │   ├── Users/
 │   │   │   │   │   ├── User.cs (ApplicationUser : IdentityUser)
 │   │   │   │   │   ├── UserProfile.cs
@@ -224,7 +224,7 @@ Bcommerce.Solution/
 │   │   │   │       ├── IAddressRepository.cs
 │   │   │   │       └── INotificationRepository.cs
 │   │   │   │
-│   │   │   └── ECommerce.User.Infrastructure/
+│   │   │   └── Bcommerce.User.Infrastructure/
 │   │   │       ├── Data/
 │   │   │       │   ├── UserDbContext.cs
 │   │   │       │   ├── Migrations/
@@ -246,7 +246,7 @@ Bcommerce.Solution/
 │   │   │           └── ServiceCollectionExtensions.cs
 │   │   │
 │   │   ├── Catalog/
-│   │   │   ├── ECommerce.Catalog.API/
+│   │   │   ├── Bcommerce.Catalog.API/
 │   │   │   │   ├── Controllers/
 │   │   │   │   │   ├── CategoriesController.cs
 │   │   │   │   │   ├── ProductsController.cs
@@ -256,7 +256,7 @@ Bcommerce.Solution/
 │   │   │   │   ├── Program.cs
 │   │   │   │   └── appsettings.json
 │   │   │   │
-│   │   │   ├── ECommerce.Catalog.Application/
+│   │   │   ├── Bcommerce.Catalog.Application/
 │   │   │   │   ├── Commands/
 │   │   │   │   │   ├── Products/
 │   │   │   │   │   │   ├── CreateProduct/
@@ -291,7 +291,7 @@ Bcommerce.Solution/
 │   │   │   │       ├── CategoryDto.cs
 │   │   │   │       └── ReviewDto.cs
 │   │   │   │
-│   │   │   ├── ECommerce.Catalog.Domain/
+│   │   │   ├── Bcommerce.Catalog.Domain/
 │   │   │   │   ├── Products/
 │   │   │   │   │   ├── Product.cs
 │   │   │   │   │   ├── ProductImage.cs
@@ -317,7 +317,7 @@ Bcommerce.Solution/
 │   │   │   │       ├── ICategoryRepository.cs
 │   │   │   │       └── IStockRepository.cs
 │   │   │   │
-│   │   │   └── ECommerce.Catalog.Infrastructure/
+│   │   │   └── Bcommerce.Catalog.Infrastructure/
 │   │   │       ├── Data/
 │   │   │       │   ├── CatalogDbContext.cs
 │   │   │       │   ├── Migrations/
@@ -329,14 +329,14 @@ Bcommerce.Solution/
 │   │   │           └── StockRepository.cs
 │   │   │
 │   │   ├── Cart/
-│   │   │   ├── ECommerce.Cart.API/
+│   │   │   ├── Bcommerce.Cart.API/
 │   │   │   │   ├── Controllers/
 │   │   │   │   │   └── CartsController.cs
 │   │   │   │   │
 │   │   │   │   ├── Program.cs
 │   │   │   │   └── appsettings.json
 │   │   │   │
-│   │   │   ├── ECommerce.Cart.Application/
+│   │   │   ├── Bcommerce.Cart.Application/
 │   │   │   │   ├── Commands/
 │   │   │   │   │   ├── AddItem/
 │   │   │   │   │   ├── RemoveItem/
@@ -358,7 +358,7 @@ Bcommerce.Solution/
 │   │   │   │       ├── CartDto.cs
 │   │   │   │       └── CartItemDto.cs
 │   │   │   │
-│   │   │   ├── ECommerce.Cart.Domain/
+│   │   │   ├── Bcommerce.Cart.Domain/
 │   │   │   │   ├── Carts/
 │   │   │   │   │   ├── Cart.cs
 │   │   │   │   │   ├── CartItem.cs
@@ -370,7 +370,7 @@ Bcommerce.Solution/
 │   │   │   │   └── Repositories/
 │   │   │   │       └── ICartRepository.cs
 │   │   │   │
-│   │   │   └── ECommerce.Cart.Infrastructure/
+│   │   │   └── Bcommerce.Cart.Infrastructure/
 │   │   │       ├── Data/
 │   │   │       │   ├── CartDbContext.cs
 │   │   │       │   └── Configurations/
@@ -379,7 +379,7 @@ Bcommerce.Solution/
 │   │   │           └── CartRepository.cs
 │   │   │
 │   │   ├── Order/
-│   │   │   ├── ECommerce.Order.API/
+│   │   │   ├── Bcommerce.Order.API/
 │   │   │   │   ├── Controllers/
 │   │   │   │   │   ├── OrdersController.cs
 │   │   │   │   │   └── TrackingController.cs
@@ -387,7 +387,7 @@ Bcommerce.Solution/
 │   │   │   │   ├── Program.cs
 │   │   │   │   └── appsettings.json
 │   │   │   │
-│   │   │   ├── ECommerce.Order.Application/
+│   │   │   ├── Bcommerce.Order.Application/
 │   │   │   │   ├── Commands/
 │   │   │   │   │   ├── CreateOrder/
 │   │   │   │   │   ├── UpdateOrderStatus/
@@ -409,7 +409,7 @@ Bcommerce.Solution/
 │   │   │   │       ├── OrderDto.cs
 │   │   │   │       └── OrderItemDto.cs
 │   │   │   │
-│   │   │   ├── ECommerce.Order.Domain/
+│   │   │   ├── Bcommerce.Order.Domain/
 │   │   │   │   ├── Orders/
 │   │   │   │   │   ├── Order.cs
 │   │   │   │   │   ├── OrderItem.cs
@@ -427,7 +427,7 @@ Bcommerce.Solution/
 │   │   │   │   └── Repositories/
 │   │   │   │       └── IOrderRepository.cs
 │   │   │   │
-│   │   │   └── ECommerce.Order.Infrastructure/
+│   │   │   └── Bcommerce.Order.Infrastructure/
 │   │   │       ├── Data/
 │   │   │       │   ├── OrderDbContext.cs
 │   │   │       │   └── Configurations/
@@ -436,7 +436,7 @@ Bcommerce.Solution/
 │   │   │           └── OrderRepository.cs
 │   │   │
 │   │   ├── Payment/
-│   │   │   ├── ECommerce.Payment.API/
+│   │   │   ├── Bcommerce.Payment.API/
 │   │   │   │   ├── Controllers/
 │   │   │   │   │   ├── PaymentsController.cs
 │   │   │   │   │   ├── PaymentMethodsController.cs
@@ -445,7 +445,7 @@ Bcommerce.Solution/
 │   │   │   │   ├── Program.cs
 │   │   │   │   └── appsettings.json
 │   │   │   │
-│   │   │   ├── ECommerce.Payment.Application/
+│   │   │   ├── Bcommerce.Payment.Application/
 │   │   │   │   ├── Commands/
 │   │   │   │   │   ├── ProcessPayment/
 │   │   │   │   │   ├── CapturePayment/
@@ -468,7 +468,7 @@ Bcommerce.Solution/
 │   │   │   │   └── DTOs/
 │   │   │   │       └── PaymentDto.cs
 │   │   │   │
-│   │   │   ├── ECommerce.Payment.Domain/
+│   │   │   ├── Bcommerce.Payment.Domain/
 │   │   │   │   ├── Payments/
 │   │   │   │   │   ├── Payment.cs
 │   │   │   │   │   ├── PaymentTransaction.cs
@@ -481,7 +481,7 @@ Bcommerce.Solution/
 │   │   │   │   └── Repositories/
 │   │   │   │       └── IPaymentRepository.cs
 │   │   │   │
-│   │   │   └── ECommerce.Payment.Infrastructure/
+│   │   │   └── Bcommerce.Payment.Infrastructure/
 │   │   │       ├── Data/
 │   │   │       │   ├── PaymentDbContext.cs
 │   │   │       │   └── Configurations/
@@ -494,14 +494,14 @@ Bcommerce.Solution/
 │   │   │           └── PagarMeGatewayImplementation.cs
 │   │   │
 │   │   └── Coupon/
-│   │       ├── ECommerce.Coupon.API/
+│   │       ├── Bcommerce.Coupon.API/
 │   │       │   ├── Controllers/
 │   │       │   │   └── CouponsController.cs
 │   │       │   │
 │   │       │   ├── Program.cs
 │   │       │   └── appsettings.json
 │   │       │
-│   │       ├── ECommerce.Coupon.Application/
+│   │       ├── Bcommerce.Coupon.Application/
 │   │       │   ├── Commands/
 │   │       │   │   ├── CreateCoupon/
 │   │       │   │   ├── UpdateCoupon/
@@ -519,7 +519,7 @@ Bcommerce.Solution/
 │   │       │   └── DTOs/
 │   │       │       └── CouponDto.cs
 │   │       │
-│   │       ├── ECommerce.Coupon.Domain/
+│   │       ├── Bcommerce.Coupon.Domain/
 │   │       │   ├── Coupons/
 │   │       │   │   ├── Coupon.cs
 │   │       │   │   ├── CouponUsage.cs
@@ -534,7 +534,7 @@ Bcommerce.Solution/
 │   │       │   └── Repositories/
 │   │       │       └── ICouponRepository.cs
 │   │       │
-│   │       └── ECommerce.Coupon.Infrastructure/
+│   │       └── Bcommerce.Coupon.Infrastructure/
 │   │           ├── Data/
 │   │           │   ├── CouponDbContext.cs
 │   │           │   └── Configurations/
@@ -543,7 +543,7 @@ Bcommerce.Solution/
 │   │               └── CouponRepository.cs
 │   │
 │   ├── ApiGateway/
-│   │   └── ECommerce.Gateway/
+│   │   └── Bcommerce.Gateway/
 │   │       ├── Configurations/
 │   │       │   └── ocelot.json
 │   │       │
@@ -551,7 +551,7 @@ Bcommerce.Solution/
 │   │       └── appsettings.json
 │   │
 │   └── Contracts/
-│       └── ECommerce.Contracts/
+│       └── Bcommerce.Contracts/
 │           ├── User/
 │           │   ├── Events/
 │           │   │   ├── UserRegisteredEvent.cs
@@ -617,37 +617,37 @@ Bcommerce.Solution/
 │   │
 │   ├── Services/
 │   │   ├── User/
-│   │   │   ├── ECommerce.User.Domain.Tests/
-│   │   │   ├── ECommerce.User.Application.Tests/
-│   │   │   └── ECommerce.User.API.Tests/
+│   │   │   ├── Bcommerce.User.Domain.Tests/
+│   │   │   ├── Bcommerce.User.Application.Tests/
+│   │   │   └── Bcommerce.User.API.Tests/
 │   │   │
 │   │   ├── Catalog/
-│   │   │   ├── ECommerce.Catalog.Domain.Tests/
-│   │   │   ├── ECommerce.Catalog.Application.Tests/
-│   │   │   └── ECommerce.Catalog.API.Tests/
+│   │   │   ├── Bcommerce.Catalog.Domain.Tests/
+│   │   │   ├── Bcommerce.Catalog.Application.Tests/
+│   │   │   └── Bcommerce.Catalog.API.Tests/
 │   │   │
 │   │   ├── Cart/
-│   │   │   ├── ECommerce.Cart.Domain.Tests/
-│   │   │   ├── ECommerce.Cart.Application.Tests/
-│   │   │   └── ECommerce.Cart.API.Tests/
+│   │   │   ├── Bcommerce.Cart.Domain.Tests/
+│   │   │   ├── Bcommerce.Cart.Application.Tests/
+│   │   │   └── Bcommerce.Cart.API.Tests/
 │   │   │
 │   │   ├── Order/
-│   │   │   ├── ECommerce.Order.Domain.Tests/
-│   │   │   ├── ECommerce.Order.Application.Tests/
-│   │   │   └── ECommerce.Order.API.Tests/
+│   │   │   ├── Bcommerce.Order.Domain.Tests/
+│   │   │   ├── Bcommerce.Order.Application.Tests/
+│   │   │   └── Bcommerce.Order.API.Tests/
 │   │   │
 │   │   ├── Payment/
-│   │   │   ├── ECommerce.Payment.Domain.Tests/
-│   │   │   ├── ECommerce.Payment.Application.Tests/
-│   │   │   └── ECommerce.Payment.API.Tests/
+│   │   │   ├── Bcommerce.Payment.Domain.Tests/
+│   │   │   ├── Bcommerce.Payment.Application.Tests/
+│   │   │   └── Bcommerce.Payment.API.Tests/
 │   │   │
 │   │   └── Coupon/
-│   │       ├── ECommerce.Coupon.Domain.Tests/
-│   │       ├── ECommerce.Coupon.Application.Tests/
-│   │       └── ECommerce.Coupon.API.Tests/
+│   │       ├── Bcommerce.Coupon.Domain.Tests/
+│   │       ├── Bcommerce.Coupon.Application.Tests/
+│   │       └── Bcommerce.Coupon.API.Tests/
 │   │
 │   └── Integration/
-│       ├── ECommerce.IntegrationTests/
+│       ├── Bcommerce.IntegrationTests/
 │       │   ├── Scenarios/
 │       │   │   ├── CheckoutFlowTests.cs
 │       │   │   ├── OrderPlacementTests.cs
@@ -656,7 +656,7 @@ Bcommerce.Solution/
 │       │   └── Fixtures/
 │       │       └── WebApplicationFactoryFixture.cs
 │       │
-│       └── ECommerce.LoadTests/
+│       └── Bcommerce.LoadTests/
 │           └── (K6 ou Artillery scripts)
 │
 ├── tools/
@@ -708,7 +708,7 @@ Bcommerce.Solution/
 ├── Directory.Packages.props
 ├── global.json
 ├── nuget.config
-├── ECommerce.Solution.sln
+├── Bcommerce.Solution.sln
 └── README.md
 ```
 
