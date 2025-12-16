@@ -1,0 +1,191 @@
+services:
+  # ==========================================
+  # INFRASTRUCTURE SERVICES
+  # ==========================================
+  
+  # Message Broker
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: bcommerce-rabbitmq
+    restart: always
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - bcommerce-network
+
+  # Distributed Cache
+  redis:
+    image: redis:alpine
+    container_name: bcommerce-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - bcommerce-network
+
+  # Observability - Logs
+  seq:
+    image: datalust/seq:latest
+    container_name: bcommerce-seq
+    restart: always
+    environment:
+      - ACCEPT_EULA=Y
+    ports:
+      - "5341:5341"
+      - "8081:80"
+    volumes:
+      - seq_data:/data
+    networks:
+      - bcommerce-network
+
+  # Observability - Tracing
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: bcommerce-jaeger
+    restart: always
+    ports:
+      - "5775:5775/udp"
+      - "6831:6831/udp"
+      - "6832:6832/udp"
+      - "5778:5778"
+      - "16686:16686"
+      - "14268:14268"
+      - "14250:14250"
+      - "9411:9411"
+    networks:
+      - bcommerce-network
+
+  # ==========================================
+  # DATABASE CONTAINERS (Per Microservice)
+  # ==========================================
+
+  # 1. User Service DB
+  postgres-user:
+    image: postgres:15-alpine
+    container_name: bcommerce-postgres-user
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=UserService
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_user_data:/var/lib/postgresql/data
+      - ../docs/db/00_shared_infrastructure.sql:/docker-entrypoint-initdb.d/00_init.sql
+      - ../docs/db/01_user_service.sql:/docker-entrypoint-initdb.d/01_init.sql
+    networks:
+      - bcommerce-network
+
+  # 2. Catalog Service DB
+  postgres-catalog:
+    image: postgres:15-alpine
+    container_name: bcommerce-postgres-catalog
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=CatalogService
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_catalog_data:/var/lib/postgresql/data
+      - ../docs/db/00_shared_infrastructure.sql:/docker-entrypoint-initdb.d/00_init.sql
+      - ../docs/db/02_catalog_service.sql:/docker-entrypoint-initdb.d/01_init.sql
+    networks:
+      - bcommerce-network
+
+  # 3. Cart Service DB
+  postgres-cart:
+    image: postgres:15-alpine
+    container_name: bcommerce-postgres-cart
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=CartService
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_cart_data:/var/lib/postgresql/data
+      - ../docs/db/00_shared_infrastructure.sql:/docker-entrypoint-initdb.d/00_init.sql
+      - ../docs/db/03_cart_service.sql:/docker-entrypoint-initdb.d/01_init.sql
+    networks:
+      - bcommerce-network
+
+  # 4. Order Service DB
+  postgres-order:
+    image: postgres:15-alpine
+    container_name: bcommerce-postgres-order
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=OrderService
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_order_data:/var/lib/postgresql/data
+      - ../docs/db/00_shared_infrastructure.sql:/docker-entrypoint-initdb.d/00_init.sql
+      - ../docs/db/04_order_service.sql:/docker-entrypoint-initdb.d/01_init.sql
+    networks:
+      - bcommerce-network
+
+  # 5. Payment Service DB
+  postgres-payment:
+    image: postgres:15-alpine
+    container_name: bcommerce-postgres-payment
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=PaymentService
+    ports:
+      - "5436:5432"
+    volumes:
+      - postgres_payment_data:/var/lib/postgresql/data
+      - ../docs/db/00_shared_infrastructure.sql:/docker-entrypoint-initdb.d/00_init.sql
+      - ../docs/db/05_payment_service.sql:/docker-entrypoint-initdb.d/01_init.sql
+    networks:
+      - bcommerce-network
+
+  # 6. Coupon Service DB
+  postgres-coupon:
+    image: postgres:15-alpine
+    container_name: bcommerce-postgres-coupon
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=CouponService
+    ports:
+      - "5437:5432"
+    volumes:
+      - postgres_coupon_data:/var/lib/postgresql/data
+      - ../docs/db/00_shared_infrastructure.sql:/docker-entrypoint-initdb.d/00_init.sql
+      - ../docs/db/06_coupon_service.sql:/docker-entrypoint-initdb.d/01_init.sql
+    networks:
+      - bcommerce-network
+
+volumes:
+  rabbitmq_data:
+  redis_data:
+  seq_data:
+  postgres_user_data:
+  postgres_catalog_data:
+  postgres_cart_data:
+  postgres_order_data:
+  postgres_payment_data:
+  postgres_coupon_data:
+
+networks:
+  bcommerce-network:
+    driver: bridge
