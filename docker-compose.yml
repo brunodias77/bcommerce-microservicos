@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  # ========================================
+  # INFRASTRUCTURE
+  # ========================================
+  
+  postgres:
+    image: postgres:15-alpine
+    container_name: bcommerce-postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=bcommerce_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./tools/docker/postgres/init-scripts:/docker-entrypoint-initdb.d
+    networks:
+        - bcommerce-network
+
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: bcommerce-rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      - ./tools/docker/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+    networks:
+        - bcommerce-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: bcommerce-redis
+    volumes:
+      - redis_data:/data
+      - ./tools/docker/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    networks:
+        - bcommerce-network
+
+  seq:
+    image: datalust/seq:latest
+    container_name: bcommerce-seq
+    environment:
+      - ACCEPT_EULA=Y
+    volumes:
+      - seq_data:/data
+    networks:
+        - bcommerce-network
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: bcommerce-jaeger
+    environment:
+      - COLLECTOR_ZIPKIN_HOST_PORT=:9411
+    networks:
+        - bcommerce-network
+
+  # ========================================
+  # MICROSERVICES (Placeholders)
+  # ========================================
+  # api-gateway:
+  #   ...
+
+networks:
+  bcommerce-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  rabbitmq_data:
+  redis_data:
+  seq_data:

@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  postgres:
+    ports:
+      - "5432:5432"
+
+  rabbitmq:
+    ports:
+      - "15672:15672" # Management UI
+      - "5672:5672"   # AMQP
+
+  redis:
+    ports:
+      - "6379:6379"
+
+  seq:
+    ports:
+      - "5341:5341"
+      - "8081:80"     # UI mapped to 8081 to avoid conflict
+
+  jaeger:
+    ports:
+      - "16686:16686" # UI
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP

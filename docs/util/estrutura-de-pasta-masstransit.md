@@ -1,7 +1,7 @@
 # Estrutura de Pastas - E-commerce Microservices
 
 ```
-ECommerce.Solution/
+Bcommerce.Solution/
 │
 ├── src/
 │   │
