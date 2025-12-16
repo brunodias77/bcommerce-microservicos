@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using Polly;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
+using RabbitMQ.Client.Events;
 using System.Net.Sockets;
 
 namespace EventBus.RabbitMQ;

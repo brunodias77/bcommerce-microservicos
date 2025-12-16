@@ -30,8 +30,7 @@ public static class RabbitMQExtensions
                 Port = settings.Port,
                 UserName = settings.UserName,
                 Password = settings.Password,
-                VirtualHost = settings.VirtualHost,
-                DispatchConsumersAsync = true
+                VirtualHost = settings.VirtualHost
             };
             return factory;
         });
