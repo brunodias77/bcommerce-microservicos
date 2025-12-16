@@ -7,7 +7,7 @@ ECommerce.Solution/
 │   │
 │   ├── BuildingBlocks/
 │   │   │
-│   │   ├── ECommerce.BuildingBlocks.Core/
+│   │   ├── Bcommerce.BuildingBlocks.Core/
 │   │   │   ├── Domain/
 │   │   │   │   ├── Entity.cs
 │   │   │   │   ├── AggregateRoot.cs
@@ -37,7 +37,7 @@ ECommerce.Solution/
 │   │   │       ├── Guard.cs
 │   │   │       └── GuardExtensions.cs
 │   │   │
-│   │   ├── ECommerce.BuildingBlocks.Infrastructure/
+│   │   ├── Bcommerce.BuildingBlocks.Infrastructure/
 │   │   │   ├── Data/
 │   │   │   │   ├── BaseDbContext.cs
 │   │   │   │   ├── IUnitOfWork.cs
@@ -67,7 +67,7 @@ ECommerce.Solution/
 │   │   │       ├── AuditLogRepository.cs
 │   │   │       └── AuditLogInterceptor.cs
 │   │   │
-│   │   ├── ECommerce.BuildingBlocks.Messaging/
+│   │   ├── Bcommerce.BuildingBlocks.Messaging/
 │   │   │   ├── Abstractions/
 │   │   │   │   ├── IIntegrationEvent.cs
 │   │   │   │   ├── IntegrationEvent.cs
@@ -86,7 +86,7 @@ ECommerce.Solution/
 │   │   │   └── Events/
 │   │   │       └── README.md (shared event contracts)
 │   │   │
-│   │   ├── ECommerce.BuildingBlocks.Web/
+│   │   ├── Bcommerce.BuildingBlocks.Web/
 │   │   │   ├── Middleware/
 │   │   │   │   ├── ExceptionHandlingMiddleware.cs
 │   │   │   │   ├── RequestLoggingMiddleware.cs
@@ -105,7 +105,7 @@ ECommerce.Solution/
 │   │   │       ├── PaginatedResponse.cs
 │   │   │       └── ErrorResponse.cs
 │   │   │
-│   │   ├── ECommerce.BuildingBlocks.Security/
+│   │   ├── Bcommerce.BuildingBlocks.Security/
 │   │   │   ├── Authentication/
 │   │   │   │   ├── JwtSettings.cs
 │   │   │   │   ├── JwtTokenGenerator.cs
@@ -120,13 +120,13 @@ ECommerce.Solution/
 │   │   │   └── Extensions/
 │   │   │       └── ClaimsPrincipalExtensions.cs
 │   │   │
-│   │   ├── ECommerce.BuildingBlocks.Caching/
+│   │   ├── Bcommerce.BuildingBlocks.Caching/
 │   │   │   ├── ICacheService.cs
 │   │   │   ├── RedisCacheService.cs
 │   │   │   ├── MemoryCacheService.cs
 │   │   │   └── CacheSettings.cs
 │   │   │
-│   │   └── ECommerce.BuildingBlocks.Observability/
+│   │   └── Bcommerce.BuildingBlocks.Observability/
 │   │       ├── Logging/
 │   │       │   ├── LoggingConfiguration.cs
 │   │       │   └── SerilogEnrichers/
@@ -611,9 +611,9 @@ ECommerce.Solution/
 │
 ├── tests/
 │   ├── BuildingBlocks/
-│   │   ├── ECommerce.BuildingBlocks.Core.Tests/
-│   │   ├── ECommerce.BuildingBlocks.Infrastructure.Tests/
-│   │   └── ECommerce.BuildingBlocks.Messaging.Tests/
+│   │   ├── Bcommerce.BuildingBlocks.Core.Tests/
+│   │   ├── Bcommerce.BuildingBlocks.Infrastructure.Tests/
+│   │   └── Bcommerce.BuildingBlocks.Messaging.Tests/
 │   │
 │   ├── Services/
 │   │   ├── User/
